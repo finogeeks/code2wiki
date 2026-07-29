@@ -2,6 +2,9 @@ services:
   code2wiki:
     image: ${CODE2WIKI_IMAGE:-ghcr.io/finogeeks/code2wiki:latest}
     platform: linux/amd64
+    # Image workspace is currently root-owned; entrypoint must create wiki/
+    # symlink at start. Run as root until the published image fixes ownership.
+    user: "0:0"
     working_dir: /workspace/code2wiki
     env_file:
       - path: .env
@@ -44,6 +47,7 @@ services:
       # Pack + activation state (do not bind-mount over image scripts/skills)
       - ./profiles:/workspace/code2wiki/profiles
       - ./config:/workspace/code2wiki/config
+      - ./secrets:/workspace/code2wiki/secrets:ro
       - ./.env:/workspace/code2wiki/.env
       - ./runtime/finclaw:/var/lib/code2wiki/finclaw
       - ./runtime/hermes:/var/lib/code2wiki/hermes

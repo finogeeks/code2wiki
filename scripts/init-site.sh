@@ -85,6 +85,20 @@ if [[ ! -f "$PACK_DIR/sources.yaml" || "$FORCE" == 1 ]]; then
   cp "$TPL/profiles/_pack/product-wiki.md" "$PACK_DIR/product-wiki.md"
 fi
 
+# Bootstrap activated config so scrubber/ask work before the first activate.
+mkdir -p "$SITE/config"
+printf '%s\n' "$PACK" >"$SITE/config/active-profile"
+{
+  echo "# ACTIVE SOURCES — bootstrapped from profiles/${PACK}/sources.yaml"
+  echo "# Re-run ./scripts/activate.sh ${PACK} after editing the pack."
+  cat "$PACK_DIR/sources.yaml"
+} >"$SITE/config/sources.yaml"
+if grep -q '^CODE2WIKI_PROFILE=' "$SITE/.env" 2>/dev/null; then
+  sed -i.bak "s/^CODE2WIKI_PROFILE=.*/CODE2WIKI_PROFILE=${PACK}/" "$SITE/.env" && rm -f "$SITE/.env.bak"
+else
+  echo "CODE2WIKI_PROFILE=${PACK}" >>"$SITE/.env"
+fi
+
 umask 077
 for name in gh_token llm_api_key a2a_peer_token; do
   path="$SITE/secrets/$name"

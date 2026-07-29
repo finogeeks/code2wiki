@@ -6,7 +6,12 @@ cd "$ROOT"
 [[ -f .env ]] && set -a && source .env && set +a
 PORT="${CODE2WIKI_PORT:-8080}"
 Q="${*:-What can you answer about the registered sources?}"
-curl -fsS "http://127.0.0.1:${PORT}/v1/ask" \
+BODY="$(python3 -c 'import json,sys; print(json.dumps({"question": sys.argv[1]}))' "$Q")"
+RESP="$(curl -fsS "http://127.0.0.1:${PORT}/v1/ask" \
   -H 'content-type: application/json' \
-  -d "$(python3 -c 'import json,sys; print(json.dumps({"question": sys.argv[1]}))' "$Q")"
-echo
+  -d "$BODY")"
+if command -v python3 >/dev/null 2>&1; then
+  printf '%s\n' "$RESP" | python3 -m json.tool 2>/dev/null || printf '%s\n' "$RESP"
+else
+  printf '%s\n' "$RESP"
+fi
