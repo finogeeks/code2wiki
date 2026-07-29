@@ -1,0 +1,9 @@
+# retrieval-eval — real questions customers will ask (routing gate)
+version: 1
+cases:
+  - id: deploy-howto
+    question: How do I deploy the product in production?
+    expect_source_ids: [example-docs]
+  - id: architecture-overview
+    question: What is the high-level architecture?
+    expect_source_ids: [example-docs]

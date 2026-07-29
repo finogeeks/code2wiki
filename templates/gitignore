@@ -1,0 +1,11 @@
+.env
+secrets/gh_token
+secrets/llm_api_key
+secrets/a2a_peer_token
+secrets/webhook_secret
+secrets/ingest_token
+runtime/
+config/active-profile
+config/sources.yaml
+*.log
+.DS_Store

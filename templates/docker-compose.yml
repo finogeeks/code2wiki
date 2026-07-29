@@ -1,0 +1,63 @@
+services:
+  code2wiki:
+    image: ${CODE2WIKI_IMAGE:-ghcr.io/finogeeks/code2wiki:latest}
+    platform: linux/amd64
+    working_dir: /workspace/code2wiki
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CODE2WIKI_HOME: /workspace/code2wiki
+      FINCLAW_HOME: /var/lib/code2wiki/finclaw
+      HERMES_HOME: /var/lib/code2wiki/hermes
+      CASST_RUNTIME: ${CASST_RUNTIME:-finclaw}
+      CASST_FINCLAW_SERVE: ${CASST_FINCLAW_SERVE:-1}
+      FINCLAW_PROFILE: ${FINCLAW_PROFILE:-casst}
+      CASST_MAX_INFLIGHT: ${CASST_MAX_INFLIGHT:-8}
+      CASST_MAX_QUEUE: ${CASST_MAX_QUEUE:-32}
+      CASST_A2A: ${CASST_A2A:-1}
+      CASST_CLAW_PORT: ${CASST_CLAW_PORT:-8787}
+      CASST_CLAW_URL: ${CASST_CLAW_URL:-http://127.0.0.1:8787}
+      CASST_PUBLIC_BASE_URL: ${CASST_PUBLIC_BASE_URL:-http://127.0.0.1:8080}
+      ANSWER_CACHE: /var/lib/code2wiki/answer-cache
+      WIKI_WORKSPACE: /var/lib/code2wiki/answer-cache
+      CODE2WIKI_DATA: /var/lib/code2wiki/data
+      CODE2WIKI_BUNDLES: /var/lib/code2wiki/bundles
+      LLM_WIKI_SKILLS: /opt/llm-wiki-skills
+      LLM_WIKI_SKILLS_FINCLAW: /opt/llm-wiki-skills-finclaw
+      CASST_MOCK: ${CASST_MOCK:-0}
+      CASST_CORRECTION_ENFORCE: ${CASST_CORRECTION_ENFORCE:-on}
+      CASST_GROUNDING: ${CASST_GROUNDING:-on}
+      CODE2WIKI_RECONCILE: ${CODE2WIKI_RECONCILE:-1}
+      CODE2WIKI_AUTO_WARM: ${CODE2WIKI_AUTO_WARM:-1}
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      CASST_OPERATOR_TOKEN: ${CASST_OPERATOR_TOKEN:-}
+    secrets:
+      - gh_token
+      - llm_api_key
+      - a2a_peer_token
+    ports:
+      - "${CODE2WIKI_PORT:-8080}:8080"
+    volumes:
+      # Pack + activation state (do not bind-mount over image scripts/skills)
+      - ./profiles:/workspace/code2wiki/profiles
+      - ./config:/workspace/code2wiki/config
+      - ./.env:/workspace/code2wiki/.env
+      - ./runtime/finclaw:/var/lib/code2wiki/finclaw
+      - ./runtime/hermes:/var/lib/code2wiki/hermes
+      - ./runtime/answer-cache:/var/lib/code2wiki/answer-cache
+      - ./runtime/data:/var/lib/code2wiki/data
+      - ./runtime/bundles:/var/lib/code2wiki/bundles
+      - ./runtime/logs:/workspace/code2wiki/runtime/logs
+      - ./runtime/eval:/workspace/code2wiki/runtime/eval
+    command: ["mcp"]
+
+secrets:
+  gh_token:
+    file: ./secrets/gh_token
+  llm_api_key:
+    file: ./secrets/llm_api_key
+  a2a_peer_token:
+    file: ./secrets/a2a_peer_token

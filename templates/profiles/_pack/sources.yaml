@@ -1,0 +1,12 @@
+# sources — edit remotes before activate
+
+# Replace the stub with your product repositories.
+sources:
+  - id: example-docs
+    remote_url: https://github.com/example/docs.git
+    # local_path: /optional/existing/checkout
+    default_branch: main
+    visibility: private
+    description: >
+      Primary product docs and runbooks. Prefer this for how-to and architecture asks.
+    tags: [docs, runbook, architecture]
