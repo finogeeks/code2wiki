@@ -21,9 +21,13 @@ services:
       CASST_A2A: ${CASST_A2A:-1}
       CASST_CLAW_PORT: ${CASST_CLAW_PORT:-8787}
       CASST_CLAW_URL: ${CASST_CLAW_URL:-http://127.0.0.1:8787}
+      # Override via .env when CODE2WIKI_PORT is not 8080.
       CASST_PUBLIC_BASE_URL: ${CASST_PUBLIC_BASE_URL:-http://127.0.0.1:8080}
       ANSWER_CACHE: /var/lib/code2wiki/answer-cache
       WIKI_WORKSPACE: /var/lib/code2wiki/answer-cache
+      # Facade defaults to workspace-relative runtime/answer-cache; site bind-mount
+      # puts the real cache under /var/lib — pin the ledger root explicitly.
+      CASST_LEDGER_ROOT: ${CASST_LEDGER_ROOT:-/var/lib/code2wiki/answer-cache/wiki/capabilities}
       CODE2WIKI_DATA: /var/lib/code2wiki/data
       CODE2WIKI_BUNDLES: /var/lib/code2wiki/bundles
       LLM_WIKI_SKILLS: /opt/llm-wiki-skills

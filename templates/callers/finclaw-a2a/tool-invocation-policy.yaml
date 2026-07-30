@@ -1,0 +1,11 @@
+# Example thin A2A caller: keep tools, but block open-web escapes so the
+# model must use a2a_send → casst for knowledge. Edit + rematerialize.
+version: 1
+mode: full
+auto_approve: []
+always_ask: []
+deny:
+  - web_search
+  - web_fetch
+  - http_request
+allow_admin_override: true

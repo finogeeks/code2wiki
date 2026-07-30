@@ -44,7 +44,7 @@ if [[ -f "$SITE/docker-compose.yml" && "$FORCE" != 1 ]]; then
 fi
 
 TPL="$INTAKE/templates"
-mkdir -p "$SITE"/{profiles,secrets,runtime/{finclaw,hermes,answer-cache,data,bundles,logs,eval},config,scripts,docs}
+mkdir -p "$SITE"/{profiles,secrets,runtime/{finclaw,hermes,answer-cache,data,bundles,logs,eval,examples},config,scripts,docs,templates}
 
 cp "$TPL/docker-compose.yml" "$SITE/docker-compose.yml"
 cp "$TPL/gitignore" "$SITE/.gitignore"
@@ -65,7 +65,14 @@ if [[ -f "$TPL/secrets/README.zh.md" ]]; then
 fi
 
 # Host scripts (self-contained site)
-for s in pull-image.sh up.sh down.sh doctor.sh ask.sh activate.sh exec.sh get-started.sh; do
+SITE_SCRIPTS=(
+  pull-image.sh up.sh down.sh doctor.sh ask.sh activate.sh exec.sh
+  get-started.sh ingest.sh
+  ensure-finclaw.sh configure-pack.sh materialize-caller.sh
+  smoke-facade.sh setup-complete.sh
+  ask-casst-a2a.sh ask-casst-mcp.sh run-setup-agent.sh
+)
+for s in "${SITE_SCRIPTS[@]}"; do
   if [[ -f "$INTAKE/scripts/$s" ]]; then
     cp "$INTAKE/scripts/$s" "$SITE/scripts/$s"
     chmod +x "$SITE/scripts/$s"
@@ -84,6 +91,26 @@ site_root() {
   echo "$here"
 }
 EOF
+if [[ -f "$INTAKE/scripts/lib/pack_yaml.py" ]]; then
+  cp "$INTAKE/scripts/lib/pack_yaml.py" "$SITE/scripts/lib/pack_yaml.py"
+fi
+if [[ -f "$INTAKE/scripts/lib/compose-env.sh" ]]; then
+  cp "$INTAKE/scripts/lib/compose-env.sh" "$SITE/scripts/lib/compose-env.sh"
+fi
+if [[ -f "$INTAKE/scripts/lib/site-base-url.sh" ]]; then
+  cp "$INTAKE/scripts/lib/site-base-url.sh" "$SITE/scripts/lib/site-base-url.sh"
+fi
+
+# FinClaw caller templates (materialize into runtime/examples/ — never appliance homes)
+mkdir -p "$SITE/templates/callers" "$SITE/runtime/examples"
+if [[ -d "$TPL/callers" ]]; then
+  cp -R "$TPL/callers/." "$SITE/templates/callers/"
+fi
+
+# Isolate Compose project from other sites / parent-shell leaks
+if ! grep -q '^COMPOSE_PROJECT_NAME=' "$SITE/.env" 2>/dev/null; then
+  echo "COMPOSE_PROJECT_NAME=casst-${PACK}" >>"$SITE/.env"
+fi
 
 PACK_DIR="$SITE/profiles/$PACK"
 mkdir -p "$PACK_DIR"
@@ -131,15 +158,40 @@ Pack: \`$PACK\`
 
 English · [中文说明](docs/getting-started.zh.md)
 
-1. Edit \`profiles/$PACK/sources.yaml\` and \`retrieval-eval.yaml\`
+## Guided (preferred)
+
+From the intake repo (or after \`curl …/install.sh\`):
+
+\`\`\`bash
+# one-shot to SETUP_COMPLETE (non-interactive needs --repo):
+# ./scripts/get-started.sh $SITE --pack $PACK --repo <id>=<git-url>
+\`\`\`
+
+On this site after a manual init, finish with:
+
+\`\`\`bash
+./scripts/configure-pack.sh --pack $PACK --repo <id>=<git-url>
+./scripts/pull-image.sh && ./scripts/up.sh && ./scripts/doctor.sh
+./scripts/activate.sh $PACK && ./scripts/ingest.sh
+./scripts/setup-complete.sh   # REST + A2A + FinClaw callers → SETUP_COMPLETE
+\`\`\`
+
+## Manual checklist
+
+1. Edit \`profiles/$PACK/sources.yaml\` and \`retrieval-eval.yaml\` (or use configure-pack)
 2. Fill \`secrets/llm_api_key\` (and \`gh_token\` if remotes are private)
-3. \`./scripts/pull-image.sh && ./scripts/up.sh\`
-4. \`./scripts/activate.sh $PACK\`
-5. \`./scripts/ask.sh "Your first question"\`
+3. Set \`CODE2WIKI_IMAGE\` in \`.env\` if dogfooding a local tag (e.g. \`code2wiki:dev\`)
+4. \`./scripts/pull-image.sh && ./scripts/up.sh && ./scripts/doctor.sh\`
+5. \`./scripts/activate.sh $PACK\`
+6. \`./scripts/ingest.sh\`
+7. \`./scripts/ask.sh "Your first question" --product <source-id>\`
+8. \`./scripts/setup-complete.sh\` (optional FinClaw A2A/MCP smokes)
 
 See \`docs/getting-started.md\` / \`docs/getting-started.zh.md\`.
 EOF
 
 echo "initialized site: $SITE"
 echo "pack:             profiles/$PACK"
-echo "next:             edit sources + secrets, then ./scripts/pull-image.sh && ./scripts/up.sh"
+echo "next:             ./scripts/configure-pack.sh --pack $PACK --repo id=url"
+echo "                  then ./scripts/get-started.sh $SITE --pack $PACK --skip-configure"
+echo "                  or continue: pull → up → activate → ingest → setup-complete"

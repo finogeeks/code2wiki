@@ -3,16 +3,30 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+[[ -f .env ]] && set -a && source .env && set +a
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/compose-env.sh"
+code2wiki_compose_env "$ROOT"
+
 PACK="${1:-}"
 [[ -n "$PACK" ]] || { echo "usage: ./scripts/activate.sh <pack-id>" >&2; exit 2; }
 [[ -d "profiles/$PACK" ]] || { echo "error: missing profiles/$PACK" >&2; exit 1; }
 
 # Prefer in-container activate script from the image.
-if docker compose exec -T code2wiki test -x ./scripts/activate-profile.sh 2>/dev/null; then
-  docker compose exec -T code2wiki ./scripts/activate-profile.sh "$PACK"
-else
-  echo "error: appliance image missing activate-profile.sh — is CODE2WIKI_IMAGE correct?" >&2
-  exit 1
+set +e
+docker compose exec -T code2wiki ./scripts/activate-profile.sh "$PACK"
+rc=$?
+set -e
+if [[ "$rc" -ne 0 ]]; then
+  # Docker Desktop often rejects `mv` onto a bind-mounted `.env` even after the
+  # pack config was written. Accept success when config/ matches the pack.
+  if [[ -f config/active-profile ]] && [[ "$(tr -d '[:space:]' <config/active-profile)" == "$PACK" ]] \
+    && [[ -f config/sources.yaml ]]; then
+    echo "warn: in-container activate exited ${rc}; continuing (config/${PACK} looks active)" >&2
+  else
+    echo "error: appliance activate-profile.sh failed (exit ${rc})" >&2
+    exit "$rc"
+  fi
 fi
 
 # Mirror CODE2WIKI_PROFILE into host .env for compose restarts

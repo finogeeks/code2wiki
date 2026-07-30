@@ -1,0 +1,8 @@
+# FinClaw Streamable HTTP MCP catalog — substitute __CASST_MCP_URL__.
+servers:
+  - id: casst-mcp
+    url: __CASST_MCP_URL__
+    description: code2wiki casst facade MCP endpoint
+    transport: streamable-http
+    connect_timeout_ms: 15000
+    call_timeout_ms: 120000

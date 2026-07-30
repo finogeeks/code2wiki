@@ -75,32 +75,47 @@
 
 ## 快速开始（运营方路径）
 
-假设你的项目叫acme（不一定只是一个代码库，可能是一系列的代码库。给它/它们一个名字，以便于给这个项目整体一个profile）。
+假设你的项目叫 acme（不一定只是一个代码库，可能是一系列的代码库。给它/它们一个名字，以便于给这个项目整体一个 profile）。
+
+**一键安装** — 无需先克隆本仓库。会下载接入面、创建站点、配置 pack、启动
+实例，并跑到 **SETUP_COMPLETE**：
 
 ```bash
-# 在本仓库（或 curl install.sh 之后）：
-./scripts/init-site.sh ~/casst-site --pack acme
-cd ~/casst-site
-
-# 1) 编辑 pack 与 secrets
-$EDITOR profiles/acme/sources.yaml
-$EDITOR profiles/acme/retrieval-eval.yaml
-printf '%s' 'your-llm-key' > secrets/llm_api_key
-printf '%s' 'your-gh-pat'  > secrets/gh_token   # 私有远端需要时
-
-# 2) 拉取镜像并启动 facade
-./scripts/pull-image.sh
-./scripts/up.sh
-
-# 3) 激活 pack + REST 试问（不需要调用方 Agent）
-./scripts/activate.sh acme
-./scripts/ask.sh "这个部署实例会回答哪些仓库的问题？"
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
+  --site ~/casst-site \
+  --pack acme \
+  --repo my-app=https://github.com/org/app.git
 ```
 
-引导式路径：`./scripts/get-started.sh ~/casst-site --pack acme`
+每个产品远端重复一次 `--repo id=url`。常用标志（转发给 `get-started.sh`）：
+`--mock`、`--skip-finclaw`、`--agent`、`--force`。
 
-首次成功 = **REST**。可选的 FinClaw / Hermes 调用方见
-[docs/calling.zh.md](docs/calling.zh.md)（英文：[calling.md](docs/calling.md)）。
+流程：拉取/更新接入面 → 宿主机 FinClaw CLI → 配置 pack → pull/up → activate →
+ingest → REST + A2A + FinClaw A2A/MCP 冒烟 → 写入
+`~/casst-site/runtime/eval/SETUP_COMPLETE.json`。
+
+前置：Docker + Compose v2、能访问 Git 远端；LLM 密钥可用环境变量
+`LLM_API_KEY`，或稍后填 `secrets/llm_api_key`。在 GHCR 发布前，站点建好后设
+本地镜像（或在续跑 `up` 前）：
+
+```bash
+echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env
+```
+
+**已经克隆本仓库？** 不必 curl：
+
+```bash
+./scripts/get-started.sh ~/casst-site --pack acme \
+  --repo my-app=https://github.com/org/app.git
+```
+
+**手动逐步**（结果相同，控制更细）：见
+[docs/getting-started.zh.md](docs/getting-started.zh.md)。
+
+提问后打开 **`/operator`**，再执行
+`./scripts/exec.sh sh -c 'EXPERIENCE_MIN_COUNT=1 ./scripts/run-experience-loop.sh all'`。
+
+SETUP_COMPLETE 之后的调用方：[docs/calling.zh.md](docs/calling.zh.md)。
 
 ---
 
@@ -110,7 +125,8 @@ printf '%s' 'your-gh-pat'  > secrets/gh_token   # 私有远端需要时
 |------|------|
 | `profiles/<pack>/` | 你的 sources + retrieval-eval 脚手架 |
 | `secrets/` | `llm_api_key`、`gh_token`、`a2a_peer_token`（权限 600） |
-| `runtime/` | 实例主目录、答案缓存、日志、eval |
+| `runtime/` | 实例主目录、答案缓存、日志、eval、`examples/` 调用方 |
+| `templates/callers/` | FinClaw A2A / MCP / setup-agent 模板 |
 | `config/` | 已激活 pack 指针（由 `activate.sh` 写入） |
 | `.env` | 非密钥配置 |
 | `docker-compose.yml` | 用绑定挂载跑已发布镜像 |
@@ -119,5 +135,5 @@ printf '%s' 'your-gh-pat'  > secrets/gh_token   # 私有远端需要时
 
 ## 文档
 
-- [docs/getting-started.zh.md](docs/getting-started.zh.md) · [English](docs/getting-started.md) — 运营方走通
-- [docs/calling.zh.md](docs/calling.zh.md) · [English](docs/calling.md) — 先 REST；可选 Agent 调用方
+- [docs/getting-started.zh.md](docs/getting-started.zh.md) · [English](docs/getting-started.md) — 运营方走通（含 `/operator`）
+- [docs/calling.zh.md](docs/calling.zh.md) · [English](docs/calling.md) — 先 REST；运营控制台；可选 Agent 调用方

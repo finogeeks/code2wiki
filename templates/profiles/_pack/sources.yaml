@@ -1,12 +1,20 @@
 # sources — edit remotes before activate
 
 # Replace the stub with your product repositories.
+# After ./scripts/ingest.sh, mirrors land at
+#   /var/lib/code2wiki/data/mirrors/<id>
+# Optionally set local_path to that mirror (or a host checkout bind-mounted
+# into the container) so corpus-link always finds the tree.
 sources:
   - id: example-docs
     remote_url: https://github.com/example/docs.git
-    # local_path: /optional/existing/checkout
+    # local_path: /var/lib/code2wiki/data/mirrors/example-docs
     default_branch: main
+    branch: main
     visibility: private
     description: >
       Primary product docs and runbooks. Prefer this for how-to and architecture asks.
     tags: [docs, runbook, architecture]
+    include_globs:
+      - README.md
+      - docs/**
