@@ -7,8 +7,8 @@
 本仓库是**客户接入面**：宿主机脚本、Compose 模板与文档。系统的主体以 **Docker 镜像**
 （`ghcr.io/finogeeks/code2wiki`）交付，无需从本仓库编译。
 
-> 镜像发布到 GHCR 仍属后续工作。本地 dogfood：在私有 monorepo 构建后设置
-> `CODE2WIKI_IMAGE=code2wiki:dev`。
+> 镜像发布到 GHCR 仍属后续工作。本地 dogfood：先在本机构建或载入镜像，再设置
+> `CODE2WIKI_IMAGE`（例如 `code2wiki:dev`）。
 
 ---
 
@@ -74,6 +74,8 @@
 ---
 
 ## 快速开始（运营方路径）
+
+假设你的项目叫acme（不一定只是一个代码库，可能是一系列的代码库。给它/它们一个名字，以便于给这个项目整体一个profile）。
 
 ```bash
 # 在本仓库（或 curl install.sh 之后）：

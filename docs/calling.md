@@ -15,14 +15,30 @@ curl -sS http://127.0.0.1:8080/v1/ask \
 Also available: `POST /v1/explain`, `POST /v1/generate`, `GET /healthz`,
 `GET /operator` (set `CASST_OPERATOR_TOKEN` for publish actions).
 
-## Optional: FinClaw or Hermes as callers
+## Facade surfaces (same appliance)
 
-After REST works:
+Base URL is `http://127.0.0.1:8080` by default (or your reverse proxy).
 
-1. Install FinClaw CLI (or use your existing agent runtime).
-2. Point MCP/A2A at `http://127.0.0.1:8080` (see private monorepo
-   `examples/callers/` when available, or your runtime’s MCP catalog).
-3. Prefer natural-language asks; do not invent product facts outside the pack.
+| Surface | Endpoint | Auth | Notes |
+|---------|----------|------|-------|
+| REST ask | `POST /v1/ask` | none (put the appliance behind your gateway if exposed) | Also `/v1/explain`, `/v1/generate` |
+| MCP | `POST /mcp` | none (same) | Streamable HTTP; tools `ask`, `explain`, `generate` |
+| A2A card | `GET /.well-known/agent-card.json` | none | Discovery for A2A peers |
+| A2A RPC | `POST /a2a/v1` | `Authorization: Bearer <token>` | JSON-RPC; token from site `secrets/a2a_peer_token` |
+
+Prefer natural-language asks. Do not invent product facts outside the activated
+pack—the appliance is the grounded source of truth.
+
+## Optional: FinClaw, Hermes, or any caller agent
+
+After REST works, point *your* agent runtime at the facade:
+
+1. Install FinClaw, Hermes, or another runtime you already use.
+2. Register the appliance as an MCP server (`…/mcp`) and/or an A2A peer
+   (`…/a2a/v1` + bearer from `secrets/a2a_peer_token`).
+3. Teach the caller to **delegate** (“ask casst”) instead of answering from
+   its own memory.
 
 Bring-your-own runtime: any client that speaks MCP, A2A, or REST can call the
-same facade. The appliance stays the source of grounded answers.
+same facade. Caller config lives in *your* runtime’s homes and catalogs—not in
+this intake repository.

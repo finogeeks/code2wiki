@@ -42,7 +42,7 @@ Optional: set `LLM_PROVIDER` / `LLM_MODEL` in `.env`.
 ./scripts/doctor.sh              # /healthz
 ```
 
-Local dogfood against a privately built image:
+Local dogfood with a locally tagged image (instead of the published GHCR tag):
 
 ```bash
 export CODE2WIKI_IMAGE=code2wiki:dev

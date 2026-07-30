@@ -9,8 +9,8 @@ This repository is the **customer intake**: host scripts, a Compose template,
 and docs. The brains of the system ship as a **Docker image**
 (`ghcr.io/finogeeks/code2wiki`). You do not build from this tree.
 
-> Publishing the image to GHCR is a follow-up. For local dogfood, set
-> `CODE2WIKI_IMAGE=code2wiki:dev` after building the private monorepo.
+> Publishing the image to GHCR is a follow-up. For local dogfood, build or load
+> an image locally and set `CODE2WIKI_IMAGE` (for example `code2wiki:dev`).
 
 ---
 

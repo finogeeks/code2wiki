@@ -42,7 +42,7 @@ chmod 600 secrets/*
 ./scripts/doctor.sh              # /healthz
 ```
 
-对着私有构建的镜像做本地 dogfood：
+使用本机标签的镜像做本地 dogfood（替代已发布的 GHCR 标签）：
 
 ```bash
 export CODE2WIKI_IMAGE=code2wiki:dev
