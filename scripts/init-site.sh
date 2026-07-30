@@ -100,6 +100,9 @@ fi
 if [[ -f "$INTAKE/scripts/lib/site-base-url.sh" ]]; then
   cp "$INTAKE/scripts/lib/site-base-url.sh" "$SITE/scripts/lib/site-base-url.sh"
 fi
+if [[ -f "$INTAKE/scripts/lib/prompt.sh" ]]; then
+  cp "$INTAKE/scripts/lib/prompt.sh" "$SITE/scripts/lib/prompt.sh"
+fi
 
 # FinClaw caller templates (materialize into runtime/examples/ — never appliance homes)
 mkdir -p "$SITE/templates/callers" "$SITE/runtime/examples"

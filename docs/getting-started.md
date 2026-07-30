@@ -14,19 +14,22 @@ English | [中文](getting-started.zh.md)
 
 ## Guided path (recommended)
 
-**No clone required** — curl the installer once:
+**No clone, no flags** — run in a terminal; prompts ask for site, pack, remotes:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
-  --site ~/casst-site \
-  --pack acme \
-  --repo my-app=https://github.com/org/app.git
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
 ```
 
-From an existing intake checkout:
+From an existing intake checkout (also interactive by default):
 
 ```bash
-./scripts/get-started.sh ~/casst-site --pack acme \
+./scripts/get-started.sh
+```
+
+CI / non-interactive (all required args explicit):
+
+```bash
+./scripts/get-started.sh --site ~/casst-site --pack acme \
   --repo my-app=https://github.com/org/app.git
 ```
 

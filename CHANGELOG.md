@@ -2,9 +2,12 @@
 
 ## [unreleased]
 
+- Install: default `curl …/install.sh | sh` is interactive (site / pack /
+  remotes / secrets via `/dev/tty`, so it works when stdin is the script);
+  flags remain for CI. README Quick start no longer hard-codes example paths.
 - Docs: lead Quick start with a oneshot
-  `curl …/install.sh | sh -s -- --site … --pack … --repo …` (EN/ZH README +
-  getting-started); checkout/`get-started` remains the secondary path.
+  `curl …/install.sh | sh` (EN/ZH README + getting-started); checkout/
+  `get-started` remains the secondary path.
 - Guided onboarding: `install.sh` / `get-started.sh` orchestrate init →
   FinClaw (`ensure-finclaw.sh`) → `configure-pack.sh` → up → activate →
   ingest → `setup-complete.sh` (REST + A2A + FinClaw A2A/MCP) with

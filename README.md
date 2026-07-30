@@ -109,38 +109,36 @@ service-oriented agent runtime rather than a single-user chat app.
 
 ## Quick start (operator path)
 
-**One-shot install** — no prior clone required. This downloads the intake,
-creates a site, configures your pack, starts the appliance, and runs
-`setup-complete` through **SETUP_COMPLETE**:
+**One-shot install** — no prior clone, no flags. Run it in a terminal; the
+installer asks for site directory, pack name, Git remotes, and secrets:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
+```
+
+It clones/updates the intake, then walks you through configure → up → activate →
+ingest → REST + A2A + FinClaw smokes, and writes
+`<site>/runtime/eval/SETUP_COMPLETE.json`.
+
+Optional flags (CI / automation only):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
-  --site ~/casst-site \
-  --pack acme \
+  --site ~/casst-site --pack acme \
   --repo my-app=https://github.com/org/app.git
 ```
 
-Repeat `--repo id=url` for each product remote. Useful flags (forwarded to
-`get-started.sh`): `--mock`, `--skip-finclaw`, `--agent`, `--force`.
-
-What it does: clone/update the intake → FinClaw CLI (host) → configure pack →
-pull/up → activate → ingest → REST + A2A + FinClaw A2A/MCP smokes → writes
-`~/casst-site/runtime/eval/SETUP_COMPLETE.json`.
-
-Prerequisites: Docker + Compose v2, network access to the Git remotes, and an
-LLM key in the environment (`LLM_API_KEY`) or you will be prompted / can fill
-`secrets/llm_api_key` afterward. Until GHCR publish lands, set a local image
-after the site exists (or before `up` on a resumed run):
+Prerequisites: Docker + Compose v2 and network access to your Git remotes.
+Until GHCR publish lands, after the site exists (or before a resumed `up`):
 
 ```bash
-echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env
+echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env   # use your site path
 ```
 
-**Already cloned this repo?** Same outcome without curl:
+**Already cloned this repo?** Same interactive path without curl:
 
 ```bash
-./scripts/get-started.sh ~/casst-site --pack acme \
-  --repo my-app=https://github.com/org/app.git
+./scripts/get-started.sh
 ```
 
 **Manual steps** (same outcome, more control): see

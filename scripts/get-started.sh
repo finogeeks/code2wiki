@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Guided path: init → FinClaw → configure pack → up → activate → ingest → SETUP_COMPLETE.
 #
-# Usage:
-#   ./scripts/get-started.sh ~/casst-site --pack acme \
+# Interactive (TTY / curl|sh via /dev/tty):
+#   ./scripts/get-started.sh
+#   # prompts: site dir, pack id, then Git remotes + secrets
+#
+# Non-interactive / CI:
+#   ./scripts/get-started.sh --site ~/casst-site --pack acme \
 #     --repo my-app=https://github.com/org/app.git
-#   ./scripts/get-started.sh ~/casst-site --pack acme --mock --skip-finclaw
-#   ./scripts/get-started.sh ~/casst-site --pack acme --agent   # FinClaw setup chat after init
 #
 # Flags:
+#   --site DIR      site directory (or pass as first positional arg)
 #   --pack ID
-#   --repo id=url   (repeatable; skips interactive configure when provided)
+#   --repo id=url   (repeatable; skips interactive repo prompts when provided)
 #   --mock          CASST_MOCK=1
 #   --skip-finclaw  do not install FinClaw (still required for caller smokes unless --skip-caller)
 #   --skip-caller   skip FinClaw A2A/MCP caller checks in setup-complete
@@ -20,8 +23,11 @@
 set -euo pipefail
 
 INTAKE="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck disable=SC1091
+source "$INTAKE/scripts/lib/prompt.sh"
+
 SITE=""
-PACK="acme"
+PACK=""
 MOCK=0
 SKIP_FINCLAW=0
 SKIP_CALLER=0
@@ -33,11 +39,12 @@ REPOS=()
 BRANCH="main"
 
 usage() {
-  sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --site) SITE="${2:-}"; shift 2 ;;
     --pack) PACK="${2:-}"; shift 2 ;;
     --repo) REPOS+=("$2"); shift 2 ;;
     --branch) BRANCH="${2:-main}"; shift 2 ;;
@@ -50,13 +57,47 @@ while [[ $# -gt 0 ]]; do
     --force) FORCE=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *)
-      if [[ -z "$SITE" ]]; then SITE="$1"; shift
+      if [[ -z "$SITE" && "$1" != -* ]]; then SITE="$1"; shift
       else echo "error: unexpected $1" >&2; exit 2
       fi
       ;;
   esac
 done
-[[ -n "$SITE" ]] || { usage; exit 2; }
+
+expand_path() {
+  local p="$1"
+  case "$p" in
+    "~/"*) p="${HOME}/${p#~/}" ;;
+    "~") p="${HOME}" ;;
+  esac
+  printf '%s' "$p"
+}
+
+# --- Interactive defaults (works under curl|sh via /dev/tty) ---
+if [[ -z "$SITE" ]]; then
+  if code2wiki_can_prompt; then
+    echo "code2wiki get-started — interactive setup"
+    SITE="$(code2wiki_prompt "Site directory" "${CODE2WIKI_SITE:-$HOME/casst-site}")"
+  else
+    echo "error: --site DIR required in non-interactive mode" >&2
+    usage
+    exit 2
+  fi
+fi
+SITE="$(expand_path "$SITE")"
+
+if [[ -z "$PACK" ]]; then
+  if code2wiki_can_prompt && [[ ${#REPOS[@]} -eq 0 || -z "${CODE2WIKI_PROFILE:-}" ]]; then
+    PACK="$(code2wiki_prompt "Pack id (short name for this product)" "${CODE2WIKI_PROFILE:-acme}")"
+  else
+    PACK="${CODE2WIKI_PROFILE:-acme}"
+  fi
+fi
+
+if [[ ! "$PACK" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]]; then
+  echo "error: invalid pack id: $PACK" >&2
+  exit 2
+fi
 
 INIT_ARGS=("$SITE" --pack "$PACK")
 [[ "$FORCE" == 1 ]] && INIT_ARGS+=(--force)
@@ -150,7 +191,7 @@ if [[ "$SKIP_CONFIGURE" != 1 ]]; then
     for r in "${REPOS[@]}"; do cfg+=(--repo "$r"); done
     cfg+=(--non-interactive)
     ./scripts/configure-pack.sh "${cfg[@]}"
-  elif [[ -t 0 ]]; then
+  elif code2wiki_can_prompt; then
     ./scripts/configure-pack.sh --pack "$PACK" --branch "$BRANCH"
   else
     echo "error: non-interactive get-started requires --repo id=url (repeatable)" >&2
