@@ -17,6 +17,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 [[ -f .env ]] && set -a && source .env && set +a
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/prompt.sh"
 
 PACK="${CODE2WIKI_PROFILE:-}"
 BRANCH="main"
@@ -73,38 +75,27 @@ if [[ ! "$PACK" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]]; then
   exit 2
 fi
 
-prompt() {
-  local msg="$1" def="${2:-}" ans
-  if [[ -n "$def" ]]; then
-    read -r -p "$msg [$def]: " ans || true
-    printf '%s' "${ans:-$def}"
-  else
-    read -r -p "$msg: " ans || true
-    printf '%s' "$ans"
-  fi
-}
-
 # Interactive repo collection when none provided.
 if [[ ${#DECLARED_REPOS[@]} -eq 0 ]]; then
-  if [[ "$NONINTERACTIVE" == 1 ]] || [[ ! -t 0 ]]; then
+  if [[ "$NONINTERACTIVE" == 1 ]] || ! code2wiki_can_prompt; then
     echo "error: no --repo provided (required in non-interactive mode)" >&2
     echo "hint: --repo my-app=https://github.com/org/app.git" >&2
     exit 2
   fi
   echo "configure-pack: interactive — add one or more Git remotes (empty URL to finish)"
   while true; do
-    url="$(prompt "Git remote URL (empty to finish)")"
+    url="$(code2wiki_prompt "Git remote URL (empty to finish)")"
     [[ -n "$url" ]] || break
     def_id="$(slug_from_url "$url")"
-    sid="$(prompt "Source id" "$def_id")"
+    sid="$(code2wiki_prompt "Source id" "$def_id")"
     DECLARED_REPOS+=("${sid}=${url}")
   done
   if [[ ${#DECLARED_REPOS[@]} -eq 0 ]]; then
     echo "error: at least one repo required" >&2
     exit 2
   fi
-  BRANCH="$(prompt "Default branch" "$BRANCH")"
-  VISIBILITY="$(prompt "visibility (private|public)" "$VISIBILITY")"
+  BRANCH="$(code2wiki_prompt "Default branch" "$BRANCH")"
+  VISIBILITY="$(code2wiki_prompt "visibility (private|public)" "$VISIBILITY")"
 fi
 
 SOURCES_JSON='[]'
@@ -164,9 +155,9 @@ if [[ "$SKIP_SECRETS" != 1 ]]; then
     write_secret secrets/llm_api_key "$LLM_API_KEY"
   elif [[ -n "$LLM_KEY_FILE" && -r "$LLM_KEY_FILE" ]]; then
     write_secret secrets/llm_api_key "$(tr -d '\r\n' <"$LLM_KEY_FILE")"
-  elif [[ -t 0 && "$NONINTERACTIVE" != 1 ]]; then
+  elif code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]]; then
     if [[ ! -s secrets/llm_api_key ]]; then
-      key="$(prompt "LLM API key (empty to skip; needed for real answers)")"
+      key="$(code2wiki_prompt "LLM API key (empty to skip; needed for real answers)")"
       write_secret secrets/llm_api_key "$key"
     fi
   fi
@@ -175,9 +166,9 @@ if [[ "$SKIP_SECRETS" != 1 ]]; then
     write_secret secrets/gh_token "$GH_TOKEN"
   elif [[ -n "$GH_TOKEN_FILE" && -r "$GH_TOKEN_FILE" ]]; then
     write_secret secrets/gh_token "$(tr -d '\r\n' <"$GH_TOKEN_FILE")"
-  elif [[ -t 0 && "$NONINTERACTIVE" != 1 ]]; then
+  elif code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]]; then
     if [[ ! -s secrets/gh_token ]]; then
-      tok="$(prompt "GitHub PAT for private remotes (empty if public HTTPS works)")"
+      tok="$(code2wiki_prompt "GitHub PAT for private remotes (empty if public HTTPS works)")"
       write_secret secrets/gh_token "$tok"
     fi
   fi

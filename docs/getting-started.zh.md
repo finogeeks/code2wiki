@@ -14,19 +14,22 @@
 
 ## 引导路径（推荐）
 
-**无需先克隆** — 一条 curl 安装：
+**无需克隆、无需抄参数** — 在终端执行；安装器会询问站点、pack、远端：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
-  --site ~/casst-site \
-  --pack acme \
-  --repo my-app=https://github.com/org/app.git
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
 ```
 
-若已有接入仓库检出：
+若已有接入仓库检出（默认也是交互式）：
 
 ```bash
-./scripts/get-started.sh ~/casst-site --pack acme \
+./scripts/get-started.sh
+```
+
+CI / 非交互（参数全部显式给出）：
+
+```bash
+./scripts/get-started.sh --site ~/casst-site --pack acme \
   --repo my-app=https://github.com/org/app.git
 ```
 

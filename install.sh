@@ -1,35 +1,33 @@
 #!/usr/bin/env sh
 # Bootstrap public intake, then run the guided get-started path.
 #
+# Interactive (recommended — no flags needed):
 #   curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
-#   curl -fsSL .../install.sh | sh -s -- --site ~/casst-site --pack acme \
+#
+# Non-interactive / CI:
+#   curl -fsSL …/install.sh | sh -s -- --site ~/casst-site --pack acme \
 #     --repo my-app=https://github.com/org/app.git
 #
-# All flags except --site / --intake-dir / --help are forwarded to get-started.sh
-# (including --pack and --repo).
+# All flags except --intake-dir / --help are forwarded to get-started.sh
+# (including --site, --pack, --repo).
 set -eu
 
-SITE="${CODE2WIKI_SITE:-$HOME/casst-site}"
 INTAKE_DIR="${CODE2WIKI_INTAKE_DIR:-}"
 REPO="${CODE2WIKI_PUBLIC_REPO:-finogeeks/code2wiki}"
 FORWARD=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --site)
-      SITE="$2"
-      shift 2
-      ;;
     --intake-dir)
       INTAKE_DIR="$2"
       shift 2
       ;;
     -h|--help)
-      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
-      # Preserve quoting poorly in sh; require simple tokens (no spaces in urls ideally).
+      # Require simple tokens (no spaces in values). Prefer interactive for complex input.
       FORWARD="$FORWARD $1"
       shift
       ;;
@@ -59,4 +57,4 @@ if [ -z "$INTAKE_DIR" ]; then
 fi
 
 # shellcheck disable=SC2086
-exec "$INTAKE_DIR/scripts/get-started.sh" "$SITE" $FORWARD
+exec "$INTAKE_DIR/scripts/get-started.sh" $FORWARD

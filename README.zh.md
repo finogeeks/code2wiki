@@ -75,38 +75,35 @@
 
 ## 快速开始（运营方路径）
 
-假设你的项目叫 acme（不一定只是一个代码库，可能是一系列的代码库。给它/它们一个名字，以便于给这个项目整体一个 profile）。
+**一键安装** — 无需先克隆，也无需抄示例参数。在终端执行后，安装器会询问
+站点目录、pack 名称、Git 远端与密钥：
 
-**一键安装** — 无需先克隆本仓库。会下载接入面、创建站点、配置 pack、启动
-实例，并跑到 **SETUP_COMPLETE**：
+```bash
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
+```
+
+会拉取/更新接入面，再引导 configure → up → activate → ingest → REST/A2A/FinClaw
+冒烟，并写入 `<站点>/runtime/eval/SETUP_COMPLETE.json`。
+
+仅 CI / 自动化时需要带标志：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
-  --site ~/casst-site \
-  --pack acme \
+  --site ~/casst-site --pack acme \
   --repo my-app=https://github.com/org/app.git
 ```
 
-每个产品远端重复一次 `--repo id=url`。常用标志（转发给 `get-started.sh`）：
-`--mock`、`--skip-finclaw`、`--agent`、`--force`。
-
-流程：拉取/更新接入面 → 宿主机 FinClaw CLI → 配置 pack → pull/up → activate →
-ingest → REST + A2A + FinClaw A2A/MCP 冒烟 → 写入
-`~/casst-site/runtime/eval/SETUP_COMPLETE.json`。
-
-前置：Docker + Compose v2、能访问 Git 远端；LLM 密钥可用环境变量
-`LLM_API_KEY`，或稍后填 `secrets/llm_api_key`。在 GHCR 发布前，站点建好后设
-本地镜像（或在续跑 `up` 前）：
+前置：Docker + Compose v2，以及能访问你的 Git 远端。在 GHCR 发布前，站点建好后
+（或续跑 `up` 前）设置本地镜像：
 
 ```bash
-echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env
+echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env   # 换成你的站点路径
 ```
 
 **已经克隆本仓库？** 不必 curl：
 
 ```bash
-./scripts/get-started.sh ~/casst-site --pack acme \
-  --repo my-app=https://github.com/org/app.git
+./scripts/get-started.sh
 ```
 
 **手动逐步**（结果相同，控制更细）：见
