@@ -55,6 +55,14 @@ cp "$TPL/secrets/README.md" "$SITE/secrets/README.md"
 cp "$INTAKE/VERSION" "$SITE/VERSION"
 cp "$INTAKE/docs/getting-started.md" "$SITE/docs/getting-started.md"
 cp "$INTAKE/docs/calling.md" "$SITE/docs/calling.md"
+cp "$INTAKE/docs/getting-started.zh.md" "$SITE/docs/getting-started.zh.md"
+cp "$INTAKE/docs/calling.zh.md" "$SITE/docs/calling.zh.md"
+if [[ -f "$INTAKE/README.zh.md" ]]; then
+  cp "$INTAKE/README.zh.md" "$SITE/README.zh.md"
+fi
+if [[ -f "$TPL/secrets/README.zh.md" ]]; then
+  cp "$TPL/secrets/README.zh.md" "$SITE/secrets/README.zh.md"
+fi
 
 # Host scripts (self-contained site)
 for s in pull-image.sh up.sh down.sh doctor.sh ask.sh activate.sh exec.sh get-started.sh; do
@@ -121,13 +129,15 @@ cat > "$SITE/README.md" <<EOF
 
 Pack: \`$PACK\`
 
+English · [中文说明](docs/getting-started.zh.md)
+
 1. Edit \`profiles/$PACK/sources.yaml\` and \`retrieval-eval.yaml\`
 2. Fill \`secrets/llm_api_key\` (and \`gh_token\` if remotes are private)
 3. \`./scripts/pull-image.sh && ./scripts/up.sh\`
 4. \`./scripts/activate.sh $PACK\`
 5. \`./scripts/ask.sh "Your first question"\`
 
-See \`docs/getting-started.md\`.
+See \`docs/getting-started.md\` / \`docs/getting-started.zh.md\`.
 EOF
 
 echo "initialized site: $SITE"

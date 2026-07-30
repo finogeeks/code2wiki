@@ -1,5 +1,7 @@
 # secrets/ — credentials for this casst site (gitignored except this README)
 
+English | [中文](README.zh.md)
+
 | File | Purpose |
 |------|---------|
 | `gh_token` | Clone/fetch private remotes |

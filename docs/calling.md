@@ -1,5 +1,7 @@
 # Calling the appliance
 
+English | [中文](calling.zh.md)
+
 Default success path is **REST** against the facade (no host agent required):
 
 ```bash

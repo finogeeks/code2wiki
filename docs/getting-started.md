@@ -1,5 +1,7 @@
 # Getting started
 
+English | [中文](getting-started.zh.md)
+
 ## Prerequisites
 
 - Docker + Compose v2
@@ -63,4 +65,4 @@ export CODE2WIKI_IMAGE=code2wiki:dev
 
 ### 7. Optional callers
 
-See [calling.md](calling.md) for FinClaw A2A/MCP or Hermes after REST works.
+See [calling.md](calling.md) ([中文](calling.zh.md)) for FinClaw A2A/MCP or Hermes after REST works.

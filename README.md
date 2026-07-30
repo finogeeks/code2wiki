@@ -1,5 +1,7 @@
 # code2wiki (public intake)
 
+English | [中文](README.zh.md)
+
 **casst** appliance for answering from *your* product git repositories.
 
 This repository is the **customer intake**: host scripts, compose template, and
@@ -47,9 +49,10 @@ Guided path: `./scripts/get-started.sh ~/casst-site --pack acme`
 
 ## First success = REST
 
-FinClaw / Hermes as *callers* are optional. See [docs/calling.md](docs/calling.md).
+FinClaw / Hermes as *callers* are optional. See [docs/calling.md](docs/calling.md)
+([中文](docs/calling.zh.md)).
 
 ## Docs
 
-- [docs/getting-started.md](docs/getting-started.md)
-- [docs/calling.md](docs/calling.md)
+- [docs/getting-started.md](docs/getting-started.md) ([中文](docs/getting-started.zh.md))
+- [docs/calling.md](docs/calling.md) ([中文](docs/calling.zh.md))
