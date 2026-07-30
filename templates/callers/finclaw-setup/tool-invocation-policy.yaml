@@ -1,0 +1,10 @@
+# Soften defaults for the setup guide — still allow shell to run site scripts.
+# Deny open-web as product-knowledge substitute.
+version: 1
+rules:
+  - tool: web_search
+    effect: deny
+  - tool: web_fetch
+    effect: deny
+  - tool: http_request
+    effect: deny

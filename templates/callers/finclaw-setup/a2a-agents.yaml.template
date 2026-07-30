@@ -1,0 +1,4 @@
+agents:
+  - id: casst
+    url: __CASST_A2A_URL__
+    # Peer token from env CASST_A2A_PEER_TOKEN / secrets/a2a_peer_token

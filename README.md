@@ -109,30 +109,48 @@ service-oriented agent runtime rather than a single-user chat app.
 
 ## Quick start (operator path)
 
+**One-shot install** — no prior clone required. This downloads the intake,
+creates a site, configures your pack, starts the appliance, and runs
+`setup-complete` through **SETUP_COMPLETE**:
+
 ```bash
-# From this repo (or after curl install.sh):
-./scripts/init-site.sh ~/casst-site --pack acme
-cd ~/casst-site
-
-# 1) Edit pack + secrets
-$EDITOR profiles/acme/sources.yaml
-$EDITOR profiles/acme/retrieval-eval.yaml
-printf '%s' 'your-llm-key' > secrets/llm_api_key
-printf '%s' 'your-gh-pat'  > secrets/gh_token   # if private remotes
-
-# 2) Pull image + start facade
-./scripts/pull-image.sh
-./scripts/up.sh
-
-# 3) Activate pack + smoke REST ask (no caller agent required)
-./scripts/activate.sh acme
-./scripts/ask.sh "What repositories does this appliance answer from?"
+curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh -s -- \
+  --site ~/casst-site \
+  --pack acme \
+  --repo my-app=https://github.com/org/app.git
 ```
 
-Guided path: `./scripts/get-started.sh ~/casst-site --pack acme`
+Repeat `--repo id=url` for each product remote. Useful flags (forwarded to
+`get-started.sh`): `--mock`, `--skip-finclaw`, `--agent`, `--force`.
 
-First success = **REST**. Optional FinClaw / Hermes callers come after; see
-[docs/calling.md](docs/calling.md) ([中文](docs/calling.zh.md)).
+What it does: clone/update the intake → FinClaw CLI (host) → configure pack →
+pull/up → activate → ingest → REST + A2A + FinClaw A2A/MCP smokes → writes
+`~/casst-site/runtime/eval/SETUP_COMPLETE.json`.
+
+Prerequisites: Docker + Compose v2, network access to the Git remotes, and an
+LLM key in the environment (`LLM_API_KEY`) or you will be prompted / can fill
+`secrets/llm_api_key` afterward. Until GHCR publish lands, set a local image
+after the site exists (or before `up` on a resumed run):
+
+```bash
+echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env
+```
+
+**Already cloned this repo?** Same outcome without curl:
+
+```bash
+./scripts/get-started.sh ~/casst-site --pack acme \
+  --repo my-app=https://github.com/org/app.git
+```
+
+**Manual steps** (same outcome, more control): see
+[docs/getting-started.md](docs/getting-started.md).
+
+After asks: open **`/operator`**, then
+`./scripts/exec.sh sh -c 'EXPERIENCE_MIN_COUNT=1 ./scripts/run-experience-loop.sh all'`.
+
+Callers after SETUP_COMPLETE: [docs/calling.md](docs/calling.md)
+([中文](docs/calling.zh.md)).
 
 ---
 
@@ -142,7 +160,8 @@ First success = **REST**. Optional FinClaw / Hermes callers come after; see
 |------|---------|
 | `profiles/<pack>/` | Your sources + retrieval-eval stubs |
 | `secrets/` | `llm_api_key`, `gh_token`, `a2a_peer_token` (mode 600) |
-| `runtime/` | Appliance homes, answer-cache, logs, eval |
+| `runtime/` | Appliance homes, answer-cache, logs, eval, `examples/` callers |
+| `templates/callers/` | FinClaw A2A / MCP / setup-agent templates |
 | `config/` | Activated pack pointer (written by `activate.sh`) |
 | `.env` | Non-secret knobs |
 | `docker-compose.yml` | Runs the published image with bind mounts |
@@ -151,5 +170,5 @@ First success = **REST**. Optional FinClaw / Hermes callers come after; see
 
 ## Docs
 
-- [docs/getting-started.md](docs/getting-started.md) ([中文](docs/getting-started.zh.md)) — operator walkthrough
-- [docs/calling.md](docs/calling.md) ([中文](docs/calling.zh.md)) — REST first; optional agent callers
+- [docs/getting-started.md](docs/getting-started.md) ([中文](docs/getting-started.zh.md)) — operator walkthrough (includes `/operator`)
+- [docs/calling.md](docs/calling.md) ([中文](docs/calling.zh.md)) — REST first; operator console; optional agent callers

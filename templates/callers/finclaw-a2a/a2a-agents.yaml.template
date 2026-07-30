@@ -1,0 +1,8 @@
+# Outbound A2A peers — substitute __CASST_A2A_URL__ at materialize time.
+agents:
+  - id: casst
+    url: __CASST_A2A_URL__
+    description: code2wiki casst body-double (A2A via scrubbing facade)
+    auth_token_env: CASST_A2A_PEER_TOKEN
+    allow_private: true
+    prefer_streaming: false

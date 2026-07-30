@@ -1,9 +1,11 @@
 # retrieval-eval — real questions customers will ask (routing gate)
+# Field name must be expect_sources (ids from sources.yaml).
 version: 1
+threshold: 0.7
 cases:
   - id: deploy-howto
     question: How do I deploy the product in production?
-    expect_source_ids: [example-docs]
+    expect_sources: [example-docs]
   - id: architecture-overview
     question: What is the high-level architecture?
-    expect_source_ids: [example-docs]
+    expect_sources: [example-docs]

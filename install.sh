@@ -1,33 +1,42 @@
 #!/usr/bin/env sh
-# Bootstrap the public intake onto this machine, then init a site.
+# Bootstrap public intake, then run the guided get-started path.
 #
 #   curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh
-#   curl -fsSL .../install.sh | sh -s -- --site ~/casst-site --pack acme
+#   curl -fsSL .../install.sh | sh -s -- --site ~/casst-site --pack acme \
+#     --repo my-app=https://github.com/org/app.git
 #
-# Until the public GitHub repo exists, run from a local checkout:
-#   sh install.sh --site ~/casst-site --pack acme
+# All flags except --site / --intake-dir / --help are forwarded to get-started.sh
+# (including --pack and --repo).
 set -eu
 
 SITE="${CODE2WIKI_SITE:-$HOME/casst-site}"
-PACK="${CODE2WIKI_PACK:-acme}"
 INTAKE_DIR="${CODE2WIKI_INTAKE_DIR:-}"
 REPO="${CODE2WIKI_PUBLIC_REPO:-finogeeks/code2wiki}"
+FORWARD=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --site) SITE="$2"; shift 2 ;;
-    --pack) PACK="$2"; shift 2 ;;
-    --intake-dir) INTAKE_DIR="$2"; shift 2 ;;
+    --site)
+      SITE="$2"
+      shift 2
+      ;;
+    --intake-dir)
+      INTAKE_DIR="$2"
+      shift 2
+      ;;
     -h|--help)
       sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
-    *) echo "unknown arg: $1" >&2; exit 2 ;;
+    *)
+      # Preserve quoting poorly in sh; require simple tokens (no spaces in urls ideally).
+      FORWARD="$FORWARD $1"
+      shift
+      ;;
   esac
 done
 
 if [ -z "$INTAKE_DIR" ]; then
-  # Prefer running from a checkout that already contains scripts/init-site.sh
   HERE=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
   if [ -x "$HERE/scripts/init-site.sh" ]; then
     INTAKE_DIR="$HERE"
@@ -49,4 +58,5 @@ if [ -z "$INTAKE_DIR" ]; then
   fi
 fi
 
-exec "$INTAKE_DIR/scripts/get-started.sh" "$SITE" --pack "$PACK"
+# shellcheck disable=SC2086
+exec "$INTAKE_DIR/scripts/get-started.sh" "$SITE" $FORWARD
