@@ -33,8 +33,9 @@ CI / 非交互（参数全部显式给出）：
   --repo my-app=https://github.com/org/app.git
 ```
 
-常用标志：`--mock`、`--skip-finclaw`、`--skip-caller`、`--agent`（完成后进入
-FinClaw 设置对话）、`--force`、`--no-up`（配置完即停）。
+常用标志：`--lang zh|en`、`--mock`、`--skip-finclaw`、`--skip-caller`、`--agent`
+（完成后进入 FinClaw 设置对话）、`--force`、`--no-up`（配置完即停）。语言也可由
+`CODE2WIKI_LANG` 或 `LANG`（`zh*` → 中文）决定。
 
 成功标志：出现 `SETUP_COMPLETE` 横幅，且存在
 `runtime/eval/SETUP_COMPLETE.json`。然后可跳到

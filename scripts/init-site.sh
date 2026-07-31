@@ -111,6 +111,16 @@ fi
 if [[ -f "$INTAKE/scripts/lib/prompt.sh" ]]; then
   cp "$INTAKE/scripts/lib/prompt.sh" "$SITE/scripts/lib/prompt.sh"
 fi
+if [[ -f "$INTAKE/scripts/lib/i18n.sh" ]]; then
+  cp "$INTAKE/scripts/lib/i18n.sh" "$SITE/scripts/lib/i18n.sh"
+fi
+if [[ -f "$INTAKE/scripts/lib/progress.sh" ]]; then
+  cp "$INTAKE/scripts/lib/progress.sh" "$SITE/scripts/lib/progress.sh"
+fi
+if [[ -d "$INTAKE/scripts/lib/i18n" ]]; then
+  mkdir -p "$SITE/scripts/lib/i18n"
+  cp -R "$INTAKE/scripts/lib/i18n/." "$SITE/scripts/lib/i18n/"
+fi
 
 # FinClaw caller templates (materialize into runtime/examples/ — never appliance homes)
 mkdir -p "$SITE/templates/callers" "$SITE/runtime/examples"

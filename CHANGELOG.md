@@ -2,6 +2,9 @@
 
 ## [unreleased]
 
+- Install UX: zh/en i18n via `CODE2WIKI_LANG` / `LANG` (or `--lang`), message
+  catalogs under `scripts/lib/i18n/`, numbered step banners, and a healthz
+  wait spinner — still pure shell (no Node).
 - Install: harden `~/` site-path expansion for macOS/Linux/Windows (Git Bash):
   trim whitespace/quotes, accept `~/…` and `~\…`, `$HOME/…`, resolve
   `HOME`/`USERPROFILE`, expand in both `get-started` and `init-site`, and refuse

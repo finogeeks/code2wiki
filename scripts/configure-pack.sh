@@ -19,6 +19,9 @@ cd "$ROOT"
 [[ -f .env ]] && set -a && source .env && set +a
 # shellcheck disable=SC1091
 source "$ROOT/scripts/lib/prompt.sh"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/i18n.sh"
+code2wiki_i18n_init
 
 PACK="${CODE2WIKI_PROFILE:-}"
 BRANCH="main"
@@ -78,24 +81,24 @@ fi
 # Interactive repo collection when none provided.
 if [[ ${#DECLARED_REPOS[@]} -eq 0 ]]; then
   if [[ "$NONINTERACTIVE" == 1 ]] || ! code2wiki_can_prompt; then
-    echo "error: no --repo provided (required in non-interactive mode)" >&2
-    echo "hint: --repo my-app=https://github.com/org/app.git" >&2
+    echo "$(code2wiki_t cfg_err_no_repo)" >&2
+    echo "$(code2wiki_t cfg_hint_repo)" >&2
     exit 2
   fi
-  echo "configure-pack: interactive — add one or more Git remotes (empty URL to finish)"
+  echo "$(code2wiki_t cfg_interactive)"
   while true; do
-    url="$(code2wiki_prompt "Git remote URL (empty to finish)")"
+    url="$(code2wiki_prompt "$(code2wiki_t cfg_git_url)")"
     [[ -n "$url" ]] || break
     def_id="$(slug_from_url "$url")"
-    sid="$(code2wiki_prompt "Source id" "$def_id")"
+    sid="$(code2wiki_prompt "$(code2wiki_t cfg_source_id)" "$def_id")"
     DECLARED_REPOS+=("${sid}=${url}")
   done
   if [[ ${#DECLARED_REPOS[@]} -eq 0 ]]; then
-    echo "error: at least one repo required" >&2
+    echo "$(code2wiki_t cfg_err_need_one)" >&2
     exit 2
   fi
-  BRANCH="$(code2wiki_prompt "Default branch" "$BRANCH")"
-  VISIBILITY="$(code2wiki_prompt "visibility (private|public)" "$VISIBILITY")"
+  BRANCH="$(code2wiki_prompt "$(code2wiki_t cfg_branch)" "$BRANCH")"
+  VISIBILITY="$(code2wiki_prompt "$(code2wiki_t cfg_visibility)" "$VISIBILITY")"
 fi
 
 SOURCES_JSON='[]'
@@ -147,7 +150,8 @@ write_secret() {
   umask 077
   printf '%s' "$value" >"$dest"
   chmod 600 "$dest"
-  echo "configure-pack: wrote $dest"
+  code2wiki_tf cfg_wrote "$dest"
+  echo
 }
 
 if [[ "$SKIP_SECRETS" != 1 ]]; then
@@ -157,7 +161,7 @@ if [[ "$SKIP_SECRETS" != 1 ]]; then
     write_secret secrets/llm_api_key "$(tr -d '\r\n' <"$LLM_KEY_FILE")"
   elif code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]]; then
     if [[ ! -s secrets/llm_api_key ]]; then
-      key="$(code2wiki_prompt "LLM API key (empty to skip; needed for real answers)")"
+      key="$(code2wiki_prompt "$(code2wiki_t cfg_llm_key)")"
       write_secret secrets/llm_api_key "$key"
     fi
   fi
@@ -168,7 +172,7 @@ if [[ "$SKIP_SECRETS" != 1 ]]; then
     write_secret secrets/gh_token "$(tr -d '\r\n' <"$GH_TOKEN_FILE")"
   elif code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]]; then
     if [[ ! -s secrets/gh_token ]]; then
-      tok="$(code2wiki_prompt "GitHub PAT for private remotes (empty if public HTTPS works)")"
+      tok="$(code2wiki_prompt "$(code2wiki_t cfg_gh_token)")"
       write_secret secrets/gh_token "$tok"
     fi
   fi
@@ -183,5 +187,5 @@ if [[ "$SKIP_SECRETS" != 1 ]]; then
   fi
 fi
 
-echo "configure-pack: pack=$PACK sources=${#DECLARED_REPOS[@]} → $OUT"
-echo "next: ./scripts/pull-image.sh && ./scripts/up.sh && ./scripts/activate.sh $PACK && ./scripts/ingest.sh"
+echo "$(code2wiki_tf cfg_done "$PACK" "${#DECLARED_REPOS[@]}" "$OUT")"
+echo "$(code2wiki_tf cfg_next "$PACK")"

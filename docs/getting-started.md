@@ -33,8 +33,9 @@ CI / non-interactive (all required args explicit):
   --repo my-app=https://github.com/org/app.git
 ```
 
-Useful flags: `--mock`, `--skip-finclaw`, `--skip-caller`, `--agent` (FinClaw
-setup chat after complete), `--force`, `--no-up` (stop after configure).
+Useful flags: `--lang zh|en`, `--mock`, `--skip-finclaw`, `--skip-caller`,
+`--agent` (FinClaw setup chat after complete), `--force`, `--no-up` (stop after
+configure). Locale also follows `CODE2WIKI_LANG` or `LANG` (zh* → Chinese).
 
 Success means `runtime/eval/SETUP_COMPLETE.json` exists and the banner prints
 `SETUP_COMPLETE`. Then jump to [§7 Operator console](#7-operator-console-see-live-traffic-signals).

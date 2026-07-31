@@ -118,7 +118,8 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
 
 It clones/updates the intake, then walks you through configure → up → activate →
 ingest → REST + A2A + FinClaw smokes, and writes
-`<site>/runtime/eval/SETUP_COMPLETE.json`.
+`<site>/runtime/eval/SETUP_COMPLETE.json`. Prompts follow `LANG` /
+`CODE2WIKI_LANG=zh|en` (or `--lang` on `get-started`).
 
 Optional flags (CI / automation only):
 

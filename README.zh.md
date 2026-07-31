@@ -83,7 +83,8 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
 ```
 
 会拉取/更新接入面，再引导 configure → up → activate → ingest → REST/A2A/FinClaw
-冒烟，并写入 `<站点>/runtime/eval/SETUP_COMPLETE.json`。
+冒烟，并写入 `<站点>/runtime/eval/SETUP_COMPLETE.json`。提示语言跟随 `LANG` /
+`CODE2WIKI_LANG=zh|en`（或 `get-started --lang`）。
 
 仅 CI / 自动化时需要带标志：
 
