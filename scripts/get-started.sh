@@ -64,15 +64,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-expand_path() {
-  local p="$1"
-  case "$p" in
-    "~/"*) p="${HOME}/${p#~/}" ;;
-    "~") p="${HOME}" ;;
-  esac
-  printf '%s' "$p"
-}
-
 # --- Interactive defaults (works under curl|sh via /dev/tty) ---
 if [[ -z "$SITE" ]]; then
   if code2wiki_can_prompt; then
@@ -84,7 +75,7 @@ if [[ -z "$SITE" ]]; then
     exit 2
   fi
 fi
-SITE="$(expand_path "$SITE")"
+SITE="$(code2wiki_expand_path "$SITE")"
 
 if [[ -z "$PACK" ]]; then
   if code2wiki_can_prompt && [[ ${#REPOS[@]} -eq 0 || -z "${CODE2WIKI_PROFILE:-}" ]]; then

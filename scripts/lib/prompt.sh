@@ -13,6 +13,19 @@ code2wiki_can_prompt() {
   code2wiki_tty_readable || [[ -t 0 ]]
 }
 
+# Expand a leading ~/ (or bare ~) to $HOME.
+# Important: ${p#~/} is wrong — bash tilde-expands the unquoted pattern to
+# $HOME/, so the strip never matches and paths become $HOME/~/….
+code2wiki_expand_path() {
+  local p="$1"
+  if [[ "$p" == '~/'* ]]; then
+    p="${HOME}/${p#"~/"}"
+  elif [[ "$p" == '~' ]]; then
+    p="${HOME}"
+  fi
+  printf '%s' "$p"
+}
+
 code2wiki_prompt() {
   local msg="$1" def="${2:-}" ans=""
   if code2wiki_tty_readable; then

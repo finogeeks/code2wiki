@@ -2,6 +2,9 @@
 
 ## [unreleased]
 
+- Install: expand `~/…` site paths correctly (bash was tilde-expanding the
+  `${p#~/}` pattern, creating `$HOME/~/…` directories); smoke prints HTTP error
+  bodies so LLM/transport failures are visible instead of bare `HTTP 400`.
 - Install: default `curl …/install.sh | sh` is interactive (site / pack /
   remotes / secrets via `/dev/tty`, so it works when stdin is the script);
   flags remain for CI. README Quick start no longer hard-codes example paths.

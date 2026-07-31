@@ -47,12 +47,21 @@ def http(method: str, path: str, body: dict | None = None, headers: dict | None 
         data = json.dumps(body).encode()
         hdrs.setdefault("content-type", "application/json")
     req = urllib.request.Request(base + path, data=data, headers=hdrs, method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        raw = r.read().decode()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            raw = r.read().decode()
+            try:
+                return r.status, json.loads(raw)
+            except json.JSONDecodeError:
+                return r.status, raw
+    except urllib.error.HTTPError as e:
+        raw = e.read().decode(errors="replace")
         try:
-            return r.status, json.loads(raw)
+            parsed = json.loads(raw)
         except json.JSONDecodeError:
-            return r.status, raw
+            parsed = raw
+        detail = parsed if isinstance(parsed, str) else json.dumps(parsed, ensure_ascii=False)
+        raise RuntimeError(f"HTTP {e.code}: {detail[:400]}") from e
 
 print(f"==> healthz ({base})")
 try:
