@@ -14,6 +14,7 @@ set -eu
 
 INTAKE_DIR="${CODE2WIKI_INTAKE_DIR:-}"
 REPO="${CODE2WIKI_PUBLIC_REPO:-finogeeks/code2wiki}"
+BRANCH="${CODE2WIKI_PUBLIC_BRANCH:-main}"
 FORWARD=""
 
 while [ "$#" -gt 0 ]; do
@@ -34,25 +35,42 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+# Refresh the disposable XDG intake cache to origin/$BRANCH (not a user workspace).
+# Always fetch+reset: a previous bug only updated when the cache was missing, so
+# curl|sh kept serving stale get-started/prompt after public syncs.
+refresh_intake_cache() {
+  dir="$1"
+  if ! command -v git >/dev/null 2>&1; then
+    echo "error: need git to clone $REPO, or pass --intake-dir" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$dir")"
+  if [ ! -d "$dir/.git" ]; then
+    rm -rf "$dir"
+    git clone --branch "$BRANCH" --single-branch \
+      "https://github.com/${REPO}.git" "$dir"
+  else
+    git -C "$dir" remote set-url origin "https://github.com/${REPO}.git"
+    git -C "$dir" fetch --depth 1 origin "$BRANCH"
+    git -C "$dir" checkout -B "$BRANCH" "origin/$BRANCH"
+    git -C "$dir" reset --hard "origin/$BRANCH"
+    git -C "$dir" clean -fd
+  fi
+  if [ ! -x "$dir/scripts/init-site.sh" ]; then
+    echo "error: intake at $dir is missing scripts/init-site.sh" >&2
+    exit 1
+  fi
+  echo "install: intake $(git -C "$dir" rev-parse --short HEAD) ($REPO@$BRANCH)"
+}
+
 if [ -z "$INTAKE_DIR" ]; then
   HERE=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
   if [ -x "$HERE/scripts/init-site.sh" ]; then
+    # Running from a full intake checkout (dev / already cloned).
     INTAKE_DIR="$HERE"
   else
     INTAKE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/code2wiki-intake"
-    if [ ! -x "$INTAKE_DIR/scripts/init-site.sh" ]; then
-      if command -v git >/dev/null 2>&1; then
-        mkdir -p "$(dirname "$INTAKE_DIR")"
-        if [ -d "$INTAKE_DIR/.git" ]; then
-          git -C "$INTAKE_DIR" pull --ff-only || true
-        else
-          git clone "https://github.com/${REPO}.git" "$INTAKE_DIR"
-        fi
-      else
-        echo "error: need git to clone $REPO, or pass --intake-dir" >&2
-        exit 1
-      fi
-    fi
+    refresh_intake_cache "$INTAKE_DIR"
   fi
 fi
 

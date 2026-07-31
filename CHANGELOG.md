@@ -2,6 +2,9 @@
 
 ## [unreleased]
 
+- Install: always refresh the XDG intake cache (`~/.local/share/code2wiki-intake`)
+  to `origin/main` on `curl|sh` (previously skipped update when the cache already
+  existed, so tilde-path and smoke fixes never applied).
 - Install: expand `~/…` site paths correctly (bash was tilde-expanding the
   `${p#~/}` pattern, creating `$HOME/~/…` directories); smoke prints HTTP error
   bodies so LLM/transport failures are visible instead of bare `HTTP 400`.
