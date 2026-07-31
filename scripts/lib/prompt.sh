@@ -13,16 +13,73 @@ code2wiki_can_prompt() {
   code2wiki_tty_readable || [[ -t 0 ]]
 }
 
-# Expand a leading ~/ (or bare ~) to $HOME.
-# Important: ${p#~/} is wrong — bash tilde-expands the unquoted pattern to
-# $HOME/, so the strip never matches and paths become $HOME/~/….
-code2wiki_expand_path() {
-  local p="$1"
-  if [[ "$p" == '~/'* ]]; then
-    p="${HOME}/${p#"~/"}"
-  elif [[ "$p" == '~' ]]; then
-    p="${HOME}"
+# Resolve the user home directory on macOS / Linux / Windows (Git Bash / MSYS).
+code2wiki_home_dir() {
+  local h=""
+  if [[ -n "${HOME:-}" ]]; then
+    h="$HOME"
+  elif [[ -n "${USERPROFILE:-}" ]]; then
+    h="${USERPROFILE}"
+  else
+    # Last resort: unquoted ~ is expanded by bash (Git Bash on Windows too).
+    h="$(cd ~ && pwd)"
   fi
+  # Normalize Windows backslashes for bash path joins / mkdir -p.
+  h="${h//\\//}"
+  # Drop trailing slash (except root).
+  if [[ "$h" != "/" ]]; then
+    h="${h%/}"
+  fi
+  printf '%s' "$h"
+}
+
+# Expand a user-typed site path:
+#   ~/dir, ~\dir (Windows), bare ~, $HOME/…, ${HOME}/…
+# Trim whitespace and optional wrapping quotes.
+#
+# Important: never use unquoted ${p#~/} — bash tilde-expands that pattern to
+# $HOME/, so the strip fails and paths become $HOME/~/… (a literal "~" folder).
+code2wiki_expand_path() {
+  local p="$1" home rest
+
+  # Trim leading/trailing whitespace.
+  p="${p#"${p%%[![:space:]]*}"}"
+  p="${p%"${p##*[![:space:]]}"}"
+
+  # Strip one layer of matching quotes if the user typed them.
+  if [[ ${#p} -ge 2 ]]; then
+    if [[ "$p" == \"*\" || "$p" == \'*\' ]]; then
+      p="${p:1:$((${#p} - 2))}"
+      p="${p#"${p%%[![:space:]]*}"}"
+      p="${p%"${p##*[![:space:]]}"}"
+    fi
+  fi
+
+  home="$(code2wiki_home_dir)"
+
+  case "$p" in
+    '~')
+      p="$home"
+      ;;
+    '~/'* | '~\'*)
+      rest="${p:2}"
+      rest="${rest//\\//}"
+      p="${home}/${rest}"
+      ;;
+    '$HOME'|'${HOME}')
+      p="$home"
+      ;;
+    '$HOME/'* | '${HOME}/'*)
+      if [[ "$p" == '$HOME/'* ]]; then
+        rest="${p#\$HOME/}"
+      else
+        rest="${p#\$\{HOME\}/}"
+      fi
+      rest="${rest//\\//}"
+      p="${home}/${rest}"
+      ;;
+  esac
+
   printf '%s' "$p"
 }
 

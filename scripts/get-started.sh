@@ -76,6 +76,13 @@ if [[ -z "$SITE" ]]; then
   fi
 fi
 SITE="$(code2wiki_expand_path "$SITE")"
+# Refuse to create a literal "~" directory (failed / unexpanded home).
+if [[ "$SITE" == '~' || "$SITE" == '~/'* || "$SITE" == '~\'* || "$SITE" == */'~' || "$SITE" == */'~/'* || "$SITE" == */'~\'* ]]; then
+  echo "error: site path still contains an unexpanded '~': $SITE" >&2
+  echo "hint: use an absolute path, or ~/dir / \$HOME/dir" >&2
+  exit 2
+fi
+echo "get-started: site → $SITE"
 
 if [[ -z "$PACK" ]]; then
   if code2wiki_can_prompt && [[ ${#REPOS[@]} -eq 0 || -z "${CODE2WIKI_PROFILE:-}" ]]; then

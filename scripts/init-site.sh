@@ -7,6 +7,8 @@
 set -euo pipefail
 
 INTAKE="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck disable=SC1091
+source "$INTAKE/scripts/lib/prompt.sh"
 SITE=""
 PACK="acme"
 FORCE=0
@@ -34,6 +36,12 @@ done
 [[ -n "$SITE" ]] || { usage; exit 2; }
 if [[ ! "$PACK" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]]; then
   echo "error: invalid pack id: $PACK" >&2
+  exit 2
+fi
+
+SITE="$(code2wiki_expand_path "$SITE")"
+if [[ "$SITE" == '~'* ]]; then
+  echo "error: site path still starts with '~' after home expansion: $SITE" >&2
   exit 2
 fi
 

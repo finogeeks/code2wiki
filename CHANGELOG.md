@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+- Install: harden `~/` site-path expansion for macOS/Linux/Windows (Git Bash):
+  trim whitespace/quotes, accept `~/…` and `~\…`, `$HOME/…`, resolve
+  `HOME`/`USERPROFILE`, expand in both `get-started` and `init-site`, and refuse
+  to create a literal `~` directory.
 - Install: always refresh the XDG intake cache (`~/.local/share/code2wiki-intake`)
   to `origin/main` on `curl|sh` (previously skipped update when the cache already
   existed, so tilde-path and smoke fixes never applied).
