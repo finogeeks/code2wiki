@@ -16,4 +16,5 @@ printf '%s' 'replace-me' > secrets/a2a_peer_token
 chmod 600 secrets/*
 ```
 
-不要把密钥写进 `.env`。
+不要把密钥写进 `.env`。非密钥的 LLM 路由（`LLM_PROVIDER`、`LLM_BASE_URL`、
+`LLM_MODEL`）写在 `.env`（可由 `configure-pack` 写入）。

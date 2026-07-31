@@ -61,12 +61,15 @@ CASST_PUBLIC_BASE_URL=http://127.0.0.1:18080
 
 ### 2. 配置 pack
 
-优先用助手（写 YAML + 可选 secrets）：
+优先用助手（写 YAML + LLM `.env` + 可选 secrets）：
 
 ```bash
 ./scripts/configure-pack.sh --pack acme \
-  --repo my-app=https://github.com/org/app.git
-# 交互式 TTY 可不传 --repo
+  --repo my-app=https://github.com/org/app.git \
+  --llm-provider openai --llm-model gpt-4.1 \
+  --llm-base-url '' --llm-key-file ./my-key.txt
+# 交互式 TTY 可不传 --repo / --llm-*（会询问提供方、base URL、模型、密钥，
+# 不默认 openai）
 ```
 
 或手改 `profiles/acme/sources.yaml`。除非语料本意公开，否则保持
@@ -76,13 +79,15 @@ CASST_PUBLIC_BASE_URL=http://127.0.0.1:18080
 ### 3. Secrets
 
 ```bash
+# 非密钥的 LLM 路由写在 .env（configure-pack 也会写）：
+#   LLM_PROVIDER=…  LLM_BASE_URL=…  LLM_MODEL=…
 printf '%s' 'sk-…' > secrets/llm_api_key
 printf '%s' 'ghp-…' > secrets/gh_token   # 需要时
 chmod 600 secrets/*
 ```
 
-`configure-pack` 在 `a2a_peer_token` 为空时可自动生成。可选：在 `.env` 设置
-`LLM_PROVIDER` / `LLM_MODEL` / `LLM_BASE_URL`。
+`configure-pack` 在 `a2a_peer_token` 为空时可自动生成。API 密钥不要写进
+`.env`，只写提供方 / base URL / 模型。
 
 ### 4. 镜像 + 启动
 

@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+- Install: `configure-pack` prompts for full LLM config (provider, base URL,
+  model, API key) and writes `LLM_*` into `.env` — no OpenAI default assumed;
+  flags `--llm-provider` / `--llm-base-url` / `--llm-model` / `--llm-key-file`
+  for CI. `templates/env.example` leaves `LLM_*` empty.
 - Install UX: zh/en i18n via `CODE2WIKI_LANG` / `LANG` (or `--lang`), message
   catalogs under `scripts/lib/i18n/`, numbered step banners, and a healthz
   wait spinner — still pure shell (no Node).

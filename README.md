@@ -110,7 +110,8 @@ service-oriented agent runtime rather than a single-user chat app.
 ## Quick start (operator path)
 
 **One-shot install** — no prior clone, no flags. Run it in a terminal; the
-installer asks for site directory, pack name, Git remotes, and secrets:
+installer asks for site directory, pack name, Git remotes, and full LLM config
+(provider, base URL, model, API key — no OpenAI default):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh

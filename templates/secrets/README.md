@@ -16,4 +16,5 @@ printf '%s' 'replace-me' > secrets/a2a_peer_token
 chmod 600 secrets/*
 ```
 
-Do not put secrets in `.env`.
+Do not put secrets in `.env`. Non-secret LLM routing (`LLM_PROVIDER`,
+`LLM_BASE_URL`, `LLM_MODEL`) belongs in `.env` (set by `configure-pack`).

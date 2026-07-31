@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Configure a pack: write sources.yaml + retrieval-eval.yaml (+ optional secrets).
+# Configure a pack: write sources.yaml + retrieval-eval.yaml (+ optional secrets/LLM).
 #
 # Non-interactive:
 #   ./scripts/configure-pack.sh --pack acme \
 #     --repo my-app=https://github.com/org/app.git \
-#     --repo docs=https://github.com/org/docs.git --branch main \
-#     --llm-key-file /path/to/key   # or LLM_API_KEY env
+#     --llm-provider openai --llm-model gpt-4.1 \
+#     --llm-base-url '' --llm-key-file /path/to/key
 #
-# Interactive (TTY): prompts for pack repos and secrets when flags omitted.
+# Interactive (TTY): prompts for remotes, LLM provider/URL/model/key, and secrets.
 #
 # Env:
 #   CODE2WIKI_PROFILE / --pack
-#   LLM_API_KEY, GH_TOKEN (optional writes into secrets/)
+#   LLM_PROVIDER, LLM_BASE_URL, LLM_MODEL, LLM_API_KEY, GH_TOKEN
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -29,6 +29,9 @@ VISIBILITY="private"
 DECLARED_REPOS=()
 LLM_KEY_FILE=""
 GH_TOKEN_FILE=""
+LLM_PROVIDER_OPT="${LLM_PROVIDER:-}"
+LLM_BASE_URL_OPT="${LLM_BASE_URL:-}"
+LLM_MODEL_OPT="${LLM_MODEL:-}"
 NONINTERACTIVE=0
 SKIP_SECRETS=0
 
@@ -46,6 +49,28 @@ slug_from_url() {
   printf '%s' "$base"
 }
 
+# Upsert KEY=VALUE in .env (create file if missing). Safe for URLs with /.
+upsert_env() {
+  local key="$1" value="$2"
+  touch .env
+  python3 -c '
+import pathlib,sys
+path=pathlib.Path(".env")
+key,value=sys.argv[1],sys.argv[2].replace("\n","").replace("\r","")
+lines=path.read_text(encoding="utf-8").splitlines() if path.stat().st_size else []
+prefix=key+"="
+out=[]; found=False
+for line in lines:
+    if line.startswith(prefix):
+        out.append(prefix+value); found=True
+    else:
+        out.append(line)
+if not found:
+    out.append(prefix+value)
+path.write_text("\n".join(out)+("\n" if out else ""), encoding="utf-8")
+' "$key" "$value"
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help) usage; exit 0 ;;
@@ -57,6 +82,9 @@ while [[ $# -gt 0 ]]; do
       DECLARED_REPOS+=("$2")
       shift 2
       ;;
+    --llm-provider) LLM_PROVIDER_OPT="${2:-}"; shift 2 ;;
+    --llm-base-url) LLM_BASE_URL_OPT="${2:-}"; shift 2 ;;
+    --llm-model) LLM_MODEL_OPT="${2:-}"; shift 2 ;;
     --llm-key-file) LLM_KEY_FILE="${2:-}"; shift 2 ;;
     --gh-token-file) GH_TOKEN_FILE="${2:-}"; shift 2 ;;
     --non-interactive) NONINTERACTIVE=1; shift ;;
@@ -154,18 +182,51 @@ write_secret() {
   echo
 }
 
-if [[ "$SKIP_SECRETS" != 1 ]]; then
+# --- LLM full config (provider + URL + model + key); no OpenAI assumption ---
+# Non-secret knobs always go to .env when provided (even with --skip-secrets).
+# API key / GH / A2A files respect --skip-secrets.
+configure_llm() {
+  local provider="${LLM_PROVIDER_OPT:-}" base="${LLM_BASE_URL_OPT:-}" model="${LLM_MODEL_OPT:-}" key=""
+  local write_key=1
+  [[ "$SKIP_SECRETS" == 1 ]] && write_key=0
+
   if [[ -n "${LLM_API_KEY:-}" ]]; then
-    write_secret secrets/llm_api_key "$LLM_API_KEY"
+    key="$LLM_API_KEY"
   elif [[ -n "$LLM_KEY_FILE" && -r "$LLM_KEY_FILE" ]]; then
-    write_secret secrets/llm_api_key "$(tr -d '\r\n' <"$LLM_KEY_FILE")"
-  elif code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]]; then
-    if [[ ! -s secrets/llm_api_key ]]; then
+    key="$(tr -d '\r\n' <"$LLM_KEY_FILE")"
+  fi
+
+  if code2wiki_can_prompt && [[ "$NONINTERACTIVE" != 1 ]] && [[ "$SKIP_SECRETS" != 1 ]]; then
+    echo "$(code2wiki_t cfg_llm_section)"
+    provider="$(code2wiki_prompt "$(code2wiki_t cfg_llm_provider)" "$provider")"
+    base="$(code2wiki_prompt "$(code2wiki_t cfg_llm_base_url)" "$base")"
+    model="$(code2wiki_prompt "$(code2wiki_t cfg_llm_model)" "$model")"
+    if [[ -z "$key" ]]; then
       key="$(code2wiki_prompt "$(code2wiki_t cfg_llm_key)")"
-      write_secret secrets/llm_api_key "$key"
     fi
   fi
 
+  # Nothing to write if user skipped entirely.
+  if [[ -z "$provider" && -z "$model" && -z "$base" && -z "$key" ]]; then
+    echo "$(code2wiki_t cfg_llm_skipped)"
+    return 0
+  fi
+
+  # Persist non-secret knobs even when key is empty (user may fill secrets later).
+  upsert_env LLM_PROVIDER "$provider"
+  upsert_env LLM_BASE_URL "$base"
+  upsert_env LLM_MODEL "$model"
+  code2wiki_tf cfg_llm_wrote "$provider" "$model" "$base"
+  echo
+
+  if [[ "$write_key" == 1 && -n "$key" ]]; then
+    write_secret secrets/llm_api_key "$key"
+  fi
+}
+
+configure_llm
+
+if [[ "$SKIP_SECRETS" != 1 ]]; then
   if [[ -n "${GH_TOKEN:-}" ]]; then
     write_secret secrets/gh_token "$GH_TOKEN"
   elif [[ -n "$GH_TOKEN_FILE" && -r "$GH_TOKEN_FILE" ]]; then

@@ -76,7 +76,8 @@
 ## 快速开始（运营方路径）
 
 **一键安装** — 无需先克隆，也无需抄示例参数。在终端执行后，安装器会询问
-站点目录、pack 名称、Git 远端与密钥：
+站点目录、pack 名称、Git 远端，以及完整 LLM 配置（提供方、base URL、模型、API
+密钥 — 不默认 openai）：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh | sh

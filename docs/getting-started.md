@@ -60,12 +60,15 @@ CASST_PUBLIC_BASE_URL=http://127.0.0.1:18080
 
 ### 2. Configure the pack
 
-Prefer the helper (writes YAML + optional secrets):
+Prefer the helper (writes YAML + LLM `.env` knobs + optional secrets):
 
 ```bash
 ./scripts/configure-pack.sh --pack acme \
-  --repo my-app=https://github.com/org/app.git
-# interactive TTY also works without --repo
+  --repo my-app=https://github.com/org/app.git \
+  --llm-provider openai --llm-model gpt-4.1 \
+  --llm-base-url '' --llm-key-file ./my-key.txt
+# interactive TTY also works without --repo / --llm-* (prompts for provider,
+# base URL, model, and API key — no provider assumed)
 ```
 
 Or edit `profiles/acme/sources.yaml` by hand. Keep `visibility: private` unless
@@ -75,13 +78,15 @@ the corpus is intentionally public. Use `expect_sources: [your-source-id]` in
 ### 3. Secrets
 
 ```bash
+# Non-secret LLM routing lives in .env (also set by configure-pack):
+#   LLM_PROVIDER=…  LLM_BASE_URL=…  LLM_MODEL=…
 printf '%s' 'sk-…' > secrets/llm_api_key
 printf '%s' 'ghp-…' > secrets/gh_token   # if needed
 chmod 600 secrets/*
 ```
 
-`configure-pack` can mint `secrets/a2a_peer_token` when empty. Optional: set
-`LLM_PROVIDER` / `LLM_MODEL` / `LLM_BASE_URL` in `.env`.
+`configure-pack` can mint `secrets/a2a_peer_token` when empty. Do not put the
+API key in `.env` — only provider / base URL / model.
 
 ### 4. Image + up
 
