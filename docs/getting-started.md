@@ -94,7 +94,8 @@ API key in `.env` — only provider / base URL / model.
 # Local dogfood (GHCR publish is still a follow-up):
 # echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> .env
 
-./scripts/pull-image.sh          # uses CODE2WIKI_IMAGE / VERSION
+./scripts/pull-image.sh          # uses CODE2WIKI_IMAGE / VERSION; refreshes registry tags
+# CODE2WIKI_PULL=0 ./scripts/pull-image.sh   # airgap: keep local copy only
 ./scripts/up.sh                  # facade on CODE2WIKI_PORT (default :8080)
 ./scripts/doctor.sh              # /healthz
 ```

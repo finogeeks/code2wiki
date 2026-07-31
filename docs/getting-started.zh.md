@@ -95,7 +95,8 @@ chmod 600 secrets/*
 # 本地 dogfood（GHCR 发布仍属后续工作）：
 # echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> .env
 
-./scripts/pull-image.sh
+./scripts/pull-image.sh          # 按 CODE2WIKI_IMAGE / VERSION；仓库标签默认刷新
+# CODE2WIKI_PULL=0 ./scripts/pull-image.sh   # 离线：只用本机已有镜像
 ./scripts/up.sh
 ./scripts/doctor.sh
 ```

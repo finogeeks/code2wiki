@@ -2,6 +2,9 @@
 
 ## [unreleased]
 
+- Install: `pull-image` refreshes registry tags by default (`docker pull` so
+  republished `:latest` / same tag updates apply); set `CODE2WIKI_PULL=0` for
+  airgap. Local tags like `code2wiki:dev` still skip pull unless forced.
 - Install: `configure-pack` prompts for full LLM config (provider, base URL,
   model, API key) and writes `LLM_*` into `.env` — no OpenAI default assumed;
   flags `--llm-provider` / `--llm-base-url` / `--llm-model` / `--llm-key-file`
