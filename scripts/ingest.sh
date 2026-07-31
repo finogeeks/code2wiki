@@ -14,6 +14,10 @@ cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/lib/compose-env.sh"
 code2wiki_compose_env "$ROOT"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/docker-runtime.sh"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/appliance-runtime.sh"
 
 RECONCILE_ARGS=(--warm-if-cold --json)
 BOOTSTRAP=1
@@ -57,22 +61,22 @@ LEDGER_ENV=(
 )
 
 echo "ingest: prepare corpus link paths"
-docker compose exec -T code2wiki bash -lc '
+code2wiki_appliance_exec bash -lc '
 set -euo pipefail
 mkdir -p /workspace/code2wiki/runtime/data
 ln -sfn /var/lib/code2wiki/data/mirrors /workspace/code2wiki/runtime/data/mirrors
 '
 
 echo "ingest: reconcile remotes → /var/lib/code2wiki/data/mirrors"
-docker compose exec -T "${LEDGER_ENV[@]}" \
-  code2wiki ./scripts/reconcile-sources.py "${RECONCILE_ARGS[@]}"
+code2wiki_appliance_exec "${LEDGER_ENV[@]}" \
+  ./scripts/reconcile-sources.py "${RECONCILE_ARGS[@]}"
 
 echo "ingest: link corpus"
-docker compose exec -T "${LEDGER_ENV[@]}" code2wiki ./scripts/casst-link-corpus.sh
+code2wiki_appliance_exec "${LEDGER_ENV[@]}" ./scripts/casst-link-corpus.sh
 
 if [[ "${BOOTSTRAP}" == "1" ]]; then
   echo "ingest: bootstrap capability stubs (no-op if image lacks helper or pages exist)"
-  docker compose exec -T "${LEDGER_ENV[@]}" code2wiki \
+  code2wiki_appliance_exec "${LEDGER_ENV[@]}" \
     bash -lc '[[ -f ./scripts/bootstrap-capability-stubs.py ]] || { echo "[bootstrap] skip: helper not in this image yet"; exit 0; }; exec ./scripts/bootstrap-capability-stubs.py "$@"' \
     _ "${SOURCE_FILTER[@]}"
 fi

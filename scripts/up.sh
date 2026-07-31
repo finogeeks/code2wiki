@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start the casst facade for this site (docker compose).
+# Start the casst facade for this site (Compose or Apple Container).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -8,15 +8,10 @@ cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/lib/compose-env.sh"
 code2wiki_compose_env "$ROOT"
-
-VER="$(tr -d '[:space:]' < VERSION 2>/dev/null || echo latest)"
-if [[ -z "${CODE2WIKI_IMAGE:-}" ]]; then
-  if [[ "$VER" == "0.0.0-dev" ]]; then
-    export CODE2WIKI_IMAGE=code2wiki:dev
-  else
-    export CODE2WIKI_IMAGE="ghcr.io/finogeeks/code2wiki:${VER}"
-  fi
-fi
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/docker-runtime.sh"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/appliance-runtime.sh"
 
 for f in secrets/llm_api_key secrets/gh_token secrets/a2a_peer_token; do
   if [[ ! -f "$f" ]]; then
@@ -25,9 +20,4 @@ for f in secrets/llm_api_key secrets/gh_token secrets/a2a_peer_token; do
   fi
 done
 
-# Compose requires secret files to exist; empty is ok for mock smoke.
-mkdir -p runtime/{finclaw,hermes,answer-cache,data,bundles,logs,eval,examples} config
-
-echo "using image: $CODE2WIKI_IMAGE (compose project: ${COMPOSE_PROJECT_NAME})"
-docker compose up -d
-echo "facade: http://127.0.0.1:${CODE2WIKI_PORT:-8080}/healthz"
+code2wiki_appliance_up

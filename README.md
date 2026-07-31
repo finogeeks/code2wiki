@@ -130,7 +130,9 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
   --repo my-app=https://github.com/org/app.git
 ```
 
-Prerequisites: Docker + Compose v2 and network access to your Git remotes.
+Prerequisites: a container engine — Docker + Compose v2 (Desktop / OrbStack /
+Colima) and/or Apple Container on macOS — plus network access to your Git
+remotes. Install aborts if none; prompts if several are available.
 Until GHCR publish lands, after the site exists (or before a resumed `up`):
 
 ```bash

@@ -4,7 +4,9 @@
 
 ## 前置条件
 
-- Docker + Compose v2
+- Docker + Compose v2（Desktop / OrbStack / Colima），**和/或** macOS 上的 Apple
+  Container（`brew install container`）。安装时会检测引擎：没有则中止；多个可用则
+  交互选择（CI 用 `--docker-context` / `--runtime`）。
 - LLM API Key（真实回答需要；管道冒烟可用 `CASST_MOCK=1`）
 - 你有权克隆的 Git 远端（公开 HTTPS，或在 `secrets/gh_token` 中放 PAT）
 - code2wiki 镜像：已发布的 `ghcr.io/finogeeks/code2wiki:<ver>`，**或**本机 dogfood

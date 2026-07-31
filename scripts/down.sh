@@ -6,4 +6,8 @@ cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/lib/compose-env.sh"
 code2wiki_compose_env "$ROOT"
-docker compose down "$@"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/docker-runtime.sh"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/appliance-runtime.sh"
+code2wiki_appliance_down "$@"

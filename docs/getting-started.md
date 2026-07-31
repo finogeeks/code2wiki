@@ -4,7 +4,9 @@ English | [中文](getting-started.zh.md)
 
 ## Prerequisites
 
-- Docker + Compose v2
+- Docker + Compose v2 (Desktop / OrbStack / Colima) **and/or** Apple Container
+  on macOS (`brew install container`). Install detects engines: aborts if none;
+  prompts if several are reachable (`--docker-context` / `--runtime` for CI).
 - An LLM API key (for real answers; `CASST_MOCK=1` works for plumbing smoke)
 - Git remotes you are allowed to clone (public HTTPS or a PAT in `secrets/gh_token`)
 - A code2wiki image: published `ghcr.io/finogeeks/code2wiki:<ver>`, **or** a local

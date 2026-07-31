@@ -105,6 +105,12 @@ fi
 if [[ -f "$INTAKE/scripts/lib/compose-env.sh" ]]; then
   cp "$INTAKE/scripts/lib/compose-env.sh" "$SITE/scripts/lib/compose-env.sh"
 fi
+if [[ -f "$INTAKE/scripts/lib/docker-runtime.sh" ]]; then
+  cp "$INTAKE/scripts/lib/docker-runtime.sh" "$SITE/scripts/lib/docker-runtime.sh"
+fi
+if [[ -f "$INTAKE/scripts/lib/appliance-runtime.sh" ]]; then
+  cp "$INTAKE/scripts/lib/appliance-runtime.sh" "$SITE/scripts/lib/appliance-runtime.sh"
+fi
 if [[ -f "$INTAKE/scripts/lib/site-base-url.sh" ]]; then
   cp "$INTAKE/scripts/lib/site-base-url.sh" "$SITE/scripts/lib/site-base-url.sh"
 fi

@@ -7,6 +7,10 @@ cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/lib/compose-env.sh"
 code2wiki_compose_env "$ROOT"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/docker-runtime.sh"
+# shellcheck disable=SC1091
+source "$ROOT/scripts/lib/appliance-runtime.sh"
 
 PACK="${1:-}"
 [[ -n "$PACK" ]] || { echo "usage: ./scripts/activate.sh <pack-id>" >&2; exit 2; }
@@ -14,7 +18,7 @@ PACK="${1:-}"
 
 # Prefer in-container activate script from the image.
 set +e
-docker compose exec -T code2wiki ./scripts/activate-profile.sh "$PACK"
+code2wiki_appliance_exec ./scripts/activate-profile.sh "$PACK"
 rc=$?
 set -e
 if [[ "$rc" -ne 0 ]]; then

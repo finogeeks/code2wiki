@@ -16,6 +16,8 @@
 #   --pack ID
 #   --repo id=url   (repeatable; skips interactive repo prompts when provided)
 #   --lang en|zh
+#   --docker-context NAME   Docker context, or `apple` for Apple Container
+#   --runtime compose|apple  Force runtime (alias of context/runtime select)
 #   --mock          CASST_MOCK=1
 #   --skip-finclaw  do not install FinClaw (still required for caller smokes unless --skip-caller)
 #   --skip-caller   skip FinClaw A2A/MCP caller checks in setup-complete
@@ -32,6 +34,8 @@ source "$INTAKE/scripts/lib/prompt.sh"
 source "$INTAKE/scripts/lib/i18n.sh"
 # shellcheck disable=SC1091
 source "$INTAKE/scripts/lib/progress.sh"
+# shellcheck disable=SC1091
+source "$INTAKE/scripts/lib/docker-runtime.sh"
 
 SITE=""
 PACK=""
@@ -42,6 +46,8 @@ SKIP_CONFIGURE=0
 NO_UP=0
 AGENT=0
 FORCE=0
+DOCKER_CONTEXT_OPT=""
+RUNTIME_OPT=""
 REPOS=()
 BRANCH="main"
 TOTAL_STEPS=10
@@ -57,6 +63,8 @@ while [[ $# -gt 0 ]]; do
     --repo) REPOS+=("$2"); shift 2 ;;
     --branch) BRANCH="${2:-main}"; shift 2 ;;
     --lang) CODE2WIKI_LANG="${2:-}"; shift 2 ;;
+    --docker-context) DOCKER_CONTEXT_OPT="${2:-}"; shift 2 ;;
+    --runtime) RUNTIME_OPT="${2:-}"; shift 2 ;;
     --mock) MOCK=1; shift ;;
     --skip-finclaw) SKIP_FINCLAW=1; shift ;;
     --skip-caller) SKIP_CALLER=1; shift ;;
@@ -74,6 +82,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 code2wiki_i18n_init
+
+# Fail fast: need Docker and/or Apple Container; prompt if several are available.
+if [[ -n "$DOCKER_CONTEXT_OPT" ]]; then
+  export CODE2WIKI_DOCKER_CONTEXT="$DOCKER_CONTEXT_OPT"
+fi
+if [[ -n "$RUNTIME_OPT" ]]; then
+  export CODE2WIKI_RUNTIME="$RUNTIME_OPT"
+fi
+if ! code2wiki_can_prompt; then
+  export CODE2WIKI_DOCKER_NONINTERACTIVE=1
+fi
+code2wiki_docker_select || exit 1
+echo
 
 # --- Interactive defaults (works under curl|sh via /dev/tty) ---
 if [[ -z "$SITE" ]]; then
@@ -117,6 +138,7 @@ INIT_ARGS=("$SITE" --pack "$PACK")
 "$INTAKE/scripts/init-site.sh" "${INIT_ARGS[@]}"
 SITE="$(cd "$SITE" && pwd)"
 cd "$SITE"
+code2wiki_docker_persist_env "$SITE"
 if [[ -f runtime/.finclaw-env ]]; then
   # shellcheck disable=SC1091
   source runtime/.finclaw-env

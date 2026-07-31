@@ -2,6 +2,14 @@
 
 ## [unreleased]
 
+- Install: on macOS, offer **Apple Container** (`container`) alongside Docker
+  engines when installed; `up`/`down`/`exec`/`pull`/`activate`/`ingest` work via
+  `CODE2WIKI_RUNTIME=apple` (secrets injected as env; `container system start`
+  on demand). Pick with the engine prompt, `--runtime apple`, or
+  `--docker-context apple`.
+- Install: detect Docker engines early — abort with install hints if none;
+  if several reachable contexts (Desktop / OrbStack / Colima / …), prompt to
+  pick one (or `--docker-context` / `DOCKER_CONTEXT`); pin choice in site `.env`.
 - Install: `pull-image` refreshes registry tags by default (`docker pull` so
   republished `:latest` / same tag updates apply); set `CODE2WIKI_PULL=0` for
   airgap. Local tags like `code2wiki:dev` still skip pull unless forced.

@@ -95,7 +95,8 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
   --repo my-app=https://github.com/org/app.git
 ```
 
-前置：Docker + Compose v2，以及能访问你的 Git 远端。在 GHCR 发布前，站点建好后
+前置：容器引擎 — Docker + Compose v2（Desktop / OrbStack / Colima）和/或 macOS
+上的 Apple Container；没有则中止，多个可用会提示选择。以及能访问你的 Git 远端。在 GHCR 发布前，站点建好后
 （或续跑 `up` 前）设置本地镜像：
 
 ```bash
