@@ -7,8 +7,9 @@
 本仓库是**客户接入面**：宿主机脚本、Compose 模板与文档。系统的主体以 **Docker 镜像**
 （`ghcr.io/finogeeks/code2wiki`）交付，无需从本仓库编译。
 
-> 镜像发布到 GHCR 仍属后续工作。本地 dogfood：先在本机构建或载入镜像，再设置
-> `CODE2WIKI_IMAGE`（例如 `code2wiki:dev`）。
+> **镜像：** 优先使用已发布标签，例如
+> `CODE2WIKI_IMAGE=ghcr.io/finogeeks/code2wiki:0.1.0`（见本仓库 `VERSION`）。
+> 本地 dogfood 可构建或载入本机标签，如 `code2wiki:dev`。
 
 ---
 
@@ -96,8 +97,10 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
 ```
 
 前置：容器引擎 — Docker + Compose v2（Desktop / OrbStack / Colima）和/或 macOS
-上的 Apple Container；没有则中止，多个可用会提示选择。以及能访问你的 Git 远端。在 GHCR 发布前，站点建好后
-（或续跑 `up` 前）设置本地镜像：
+上的 Apple Container；没有则中止，多个可用会提示选择。以及能访问你的 Git 远端。
+
+默认 `./scripts/pull-image.sh` 使用 `ghcr.io/finogeeks/code2wiki` 与 `VERSION` 钉。
+仅本地 dogfood 时：
 
 ```bash
 echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env   # 换成你的站点路径

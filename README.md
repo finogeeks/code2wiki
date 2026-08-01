@@ -9,8 +9,9 @@ This repository is the **customer intake**: host scripts, a Compose template,
 and docs. The brains of the system ship as a **Docker image**
 (`ghcr.io/finogeeks/code2wiki`). You do not build from this tree.
 
-> Publishing the image to GHCR is a follow-up. For local dogfood, build or load
-> an image locally and set `CODE2WIKI_IMAGE` (for example `code2wiki:dev`).
+> **Image:** prefer a published tag, e.g.
+> `CODE2WIKI_IMAGE=ghcr.io/finogeeks/code2wiki:0.1.0` (see `VERSION` in this
+> repo). For local dogfood, build or load a local tag such as `code2wiki:dev`.
 
 ---
 
@@ -133,7 +134,9 @@ curl -fsSL https://raw.githubusercontent.com/finogeeks/code2wiki/main/install.sh
 Prerequisites: a container engine — Docker + Compose v2 (Desktop / OrbStack /
 Colima) and/or Apple Container on macOS — plus network access to your Git
 remotes. Install aborts if none; prompts if several are available.
-Until GHCR publish lands, after the site exists (or before a resumed `up`):
+
+By default `./scripts/pull-image.sh` uses `ghcr.io/finogeeks/code2wiki` and the
+`VERSION` pin. For local dogfood only:
 
 ```bash
 echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> ~/casst-site/.env   # use your site path
@@ -174,3 +177,4 @@ Callers after SETUP_COMPLETE: [docs/calling.md](docs/calling.md)
 
 - [docs/getting-started.md](docs/getting-started.md) ([中文](docs/getting-started.zh.md)) — operator walkthrough (includes `/operator`)
 - [docs/calling.md](docs/calling.md) ([中文](docs/calling.zh.md)) — REST first; operator console; optional agent callers
+- [docs/desktop-module.md](docs/desktop-module.md) — FinDesk desktop module fetch contract (`casst-v*` release assets)

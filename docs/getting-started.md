@@ -93,7 +93,9 @@ API key in `.env` — only provider / base URL / model.
 ### 4. Image + up
 
 ```bash
-# Local dogfood (GHCR publish is still a follow-up):
+# Prefer published GHCR (default when CODE2WIKI_IMAGE is unset):
+# echo 'CODE2WIKI_IMAGE=ghcr.io/finogeeks/code2wiki:0.1.0' >> .env
+# Local dogfood fallback:
 # echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> .env
 
 ./scripts/pull-image.sh          # uses CODE2WIKI_IMAGE / VERSION; refreshes registry tags

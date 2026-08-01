@@ -94,7 +94,9 @@ chmod 600 secrets/*
 ### 4. 镜像 + 启动
 
 ```bash
-# 本地 dogfood（GHCR 发布仍属后续工作）：
+# 优先使用已发布的 GHCR（未设置 CODE2WIKI_IMAGE 时的默认行为）：
+# echo 'CODE2WIKI_IMAGE=ghcr.io/finogeeks/code2wiki:0.1.0' >> .env
+# 本地 dogfood 回退：
 # echo 'CODE2WIKI_IMAGE=code2wiki:dev' >> .env
 
 ./scripts/pull-image.sh          # 按 CODE2WIKI_IMAGE / VERSION；仓库标签默认刷新
