@@ -48,8 +48,10 @@ FinDesk `prepare` should:
    `bin/casst-ctl`, `bin/casst-facade`, `bin/anydoc`, `share/…`, `MANIFEST.json`).
 
 The module does **not** bundle FinClaw, Bun, Hermes, Git, or Node — the desktop
-host provides the agent runtime. Office/PDF vault text is produced by the
-bundled native `bin/anydoc` via `casst-ctl extract` (no `npx`).
+host provides the agent runtime. Its compiled `bin/casst-ctl`,
+`bin/casst-facade`, and `bin/anydoc` support serve, extract, and grounded asks;
+host `python3` is not required. Office/PDF vault text is produced by the bundled
+native `bin/anydoc` via `casst-ctl extract` (no `npx`).
 
 After importing files into `$CODE2WIKI_DATA/vault/<source-id>/`:
 
