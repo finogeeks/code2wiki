@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.4.0] — 2026-08-06
+
+Ask **latency ladder**: FAQ/definition short-circuit + warm `finclaw serve` A2A
+miss path with cold fallback; journal `ask_class` / `transport`; source-hint
+header; `/healthz.claw`; `casst-latency-eval.py` gate.
+
+### Latency Δ (dogfood appliance, §8)
+
+| Cohort | Metric | 0.3 baseline (grounding off / cold miss) | 0.4 treatment |
+|--------|--------|------------------------------------------|---------------|
+| `faq_definition` | p50 / p95 | ~32s / ~85s (partial; no FAQ short-circuit) | **235ms / 238ms** (`transport=cache`) |
+| `faq_definition` | gate p95 ≤ 5s | fail | **pass** |
+| `miss_warm` | transport | n/a (pre-ladder) | warm works in smoke; long prompts still often `cold` fallback — follow-up |
+
+Reports: `runtime/eval/latency-0.3.0.json`, `runtime/eval/latency-0.4.0.json`.
+Operator how-to: `docs/testing/latency-eval.md`.
+
+### Facade
+
+- Supervise/adopt `finclaw serve`; warm chat via A2A `message/send` (secret bearer).
+- `definition`/`faq` → `repairMax=0`; `X-Casst-Source-Hint`; `CASST_DEFAULT_USER`.
+
 ## [unreleased]
 
 - Install: on macOS, offer **Apple Container** (`container`) alongside Docker
