@@ -45,10 +45,19 @@ FinDesk `prepare` should:
 3. Download
    `https://github.com/finogeeks/code2wiki/releases/download/casst-v<version>/casst-<version>-<triple>.tar.zst`
 4. Extract into `resources/bundled-code2wiki/<platform-arch>/` (layout:
-   `bin/casst-ctl`, `bin/casst-facade`, `share/…`, `MANIFEST.json`).
+   `bin/casst-ctl`, `bin/casst-facade`, `bin/anydoc`, `share/…`, `MANIFEST.json`).
 
-The module does **not** bundle FinClaw, Bun, Hermes, or Git — the desktop host
-provides the agent runtime.
+The module does **not** bundle FinClaw, Bun, Hermes, Git, or Node — the desktop
+host provides the agent runtime. Office/PDF vault text is produced by the
+bundled native `bin/anydoc` via `casst-ctl extract` (no `npx`).
+
+After importing files into `$CODE2WIKI_DATA/vault/<source-id>/`:
+
+```bash
+export CODE2WIKI_HOME=/path/to/bundled-code2wiki/...
+export CODE2WIKI_DATA=...
+"$CODE2WIKI_HOME/bin/casst-ctl" extract
+```
 
 ## Local smoke (maintainers)
 
