@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] — 2026-08-06
+
+- Warm miss path: default `CASST_WARM_CHAT_TIMEOUT_MS` **180s** (was 60s abort → cold).
+  Dogfood `miss_warm` recheck: `transport=warm` 100% (`runtime/eval/latency-0.4.1-warm-timeout.json`).
+- Facade tests: `FetchLike` / `ClawChildProcess` injectable types so tier0 typecheck passes.
+
 ## [0.4.0] — 2026-08-06
 
 Ask **latency ladder**: FAQ/definition short-circuit + warm `finclaw serve` A2A
