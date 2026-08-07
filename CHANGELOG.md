@@ -28,6 +28,32 @@ Operator how-to: `docs/testing/latency-eval.md`.
 - Supervise/adopt `finclaw serve`; warm chat via A2A `message/send` (secret bearer).
 - `definition`/`faq` → `repairMax=0`; `X-Casst-Source-Hint`; `CASST_DEFAULT_USER`.
 
+## [0.4.8] — 2026-08-08
+
+Milestone on top of **0.4.7** linked filesystem sources. Structural /
+artifact parity stays **flag-default-off** for FinDesk Knowledge Vault;
+desktop argv, `/healthz.claw`, ask/warm/MCP shapes unchanged.
+
+
+- Install: default FinClaw pin raised to **0.11.2** (`.env.example`,
+  compose build arg, Dockerfile ARG, installer fallback). 0.10.4 ignores
+  `loop_overrides.max_tool_calls`, and the stale `.env` pin silently
+  downgraded rebuilds via compose interpolation.
+- Latency: casst uses FinClaw `capability: coding`; set
+  `AI_INFRA_RS_CODING_AGENT_LOOP_MAX_TOOL_CALLS=100` (research-sized for
+  large corpora) and `AI_INFRA_RS_CODING_AGENT_LOOP_CONTINUATION_ENABLED=0`
+  because profile `loop_overrides` are not yet written to `agent-loop.yaml`
+  in FinClaw 0.11.2 (coding defaults otherwise enable a 120s continuation
+  margin that emits checkpoint pauses on one-shot `/v1/ask`).
+- Latency: aligned warm chat and FinClaw loop deadlines at 240s;
+  timed-out warm requests no longer replay through cold chat.
+- Latency: Graphify MCP registration is opt-in until its
+  `Path.rglob(..., follow_symlinks=...)` startup failure is fixed; generated
+  MCP calls default to 15s.
+- Structural: flag-gated `CASST_STRUCTURAL_*` / `CASST_ARTIFACTS_*` layers,
+  desktop-native adapter, additive `/healthz.structural` /
+  `/healthz.artifacts` (never mutates `claw.status`).
+
 ## [unreleased]
 
 - Install: on macOS, offer **Apple Container** (`container`) alongside Docker
